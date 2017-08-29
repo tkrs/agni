@@ -9,7 +9,7 @@ import agni.{ Result, RowDecoder }
 import cats.instances.try_._
 import cats.instances.list._
 import cats.syntax.traverse._
-import cats.syntax.cartesian._
+import cats.syntax.apply._
 import com.datastax.driver.core.querybuilder.{ Insert, Select, QueryBuilder => Q }
 import com.datastax.driver.core._
 import com.github.benmanes.caffeine.cache.Caffeine
@@ -228,7 +228,7 @@ class StdTryBenchmark extends CassandraClientBenchmark {
     val fb = get(uuid2)
     val fc = get(uuid3)
 
-    val f = (fa |@| fb |@| fc).tupled
+    val f = (fa, fb, fc).mapN((_, _, _))
 
     f.get
   }
@@ -262,7 +262,7 @@ class StdFutureBenchmark extends CassandraClientBenchmark {
     val fb = getAsync(uuid2)
     val fc = getAsync(uuid3)
 
-    val f = (fa |@| fb |@| fc).tupled
+    val f = (fa, fb, fc).mapN((_, _, _))
 
     Await.result(f, Duration.Inf)
   }
@@ -296,7 +296,7 @@ class TwitterFutureBenchmark extends CassandraClientBenchmark {
     val fb = getAsync(uuid2)
     val fc = getAsync(uuid3)
 
-    val f = (fa |@| fb |@| fc).tupled
+    val f = (fa, fb, fc).mapN((_, _, _))
 
     TAwait.result(f)
   }
@@ -325,7 +325,7 @@ class TwitterTryBenchmark extends CassandraClientBenchmark {
     val fb = get(uuid2)
     val fc = get(uuid3)
 
-    val f = (fa |@| fb |@| fc).tupled
+    val f = (fa, fb, fc).mapN((_, _, _))
 
     f.get
   }
@@ -362,7 +362,7 @@ class MonixTaskBenchmark extends CassandraClientBenchmark {
     val fb = getAsync(uuid2)
     val fc = getAsync(uuid3)
 
-    val f = (fa |@| fb |@| fc).tupled
+    val f = (fa, fb, fc).mapN((_, _, _))
 
     Await.result(f.runAsync, 10.seconds)
   }
@@ -398,7 +398,7 @@ class FS2TaskBenchmark extends CassandraClientBenchmark {
     val fb = getAsync(uuid2)
     val fc = getAsync(uuid3)
 
-    val f = (fa |@| fb |@| fc).tupled
+    val f = (fa, fb, fc).mapN((_, _, _))
 
     Await.result(f.unsafeRunAsyncFuture(), 10.seconds)
   }
@@ -448,7 +448,7 @@ class JavaDriverFutureBenchmark extends CassandraClientBenchmark {
     val fb = getAsync(uuid2)
     val fc = getAsync(uuid3)
 
-    val f = (fa |@| fb |@| fc).tupled
+    val f = (fa, fb, fc).mapN((_, _, _))
 
     Await.result(f, Duration.Inf)
   }

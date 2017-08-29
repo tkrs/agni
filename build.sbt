@@ -16,21 +16,22 @@ lazy val buildSettings = Seq(
   organization := "com.github.yanana",
   scalaVersion := "2.12.3",
   crossScalaVersions := Seq("2.11.11", "2.12.3"),
-  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3")
+  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.4")
 )
 
 val datastaxVersion = "3.3.0"
-val catsVersion = "0.9.0"
+val catsVersion = "1.0.0-MF"
 val shapelessVersion = "2.3.2"
 val scalacheckVersion = "1.13.5"
 val scalatestVersion = "3.0.3"
-val catbirdVersion = "0.15.0"
+val catbirdVersion = "0.17.0"
 val monixVersion = "2.3.0"
-val fs2Version = "0.9.7"
+val fs2CatsVersion = "0.4.0"
+val caffeineVersion = "2.5.5"
 
 lazy val coreDeps = Seq(
   "com.datastax.cassandra" % "cassandra-driver-core" % datastaxVersion,
-  "org.typelevel" %% "cats" % catsVersion,
+  "org.typelevel" %% "cats-core" % catsVersion,
   "com.chuusai" %% "shapeless" % shapelessVersion
 )
 
@@ -136,8 +137,7 @@ lazy val fs2 = project.in(file("fs2"))
     moduleName := "agni-fs2",
     name := "fs2",
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-core" % fs2Version,
-      "co.fs2" %% "fs2-cats" % "0.3.0"
+      "co.fs2" %% "fs2-cats" % fs2CatsVersion
     )
   )
   .dependsOn(core)
@@ -154,10 +154,9 @@ lazy val benchmarks = project.in(file("benchmarks"))
       "io.catbird" %% "catbird-util" % catbirdVersion,
       "io.monix" %% "monix-eval" % monixVersion,
       "io.monix" %% "monix-cats" % monixVersion,
-      "co.fs2" %% "fs2-core" % fs2Version,
-      "co.fs2" %% "fs2-cats" % "0.3.0",
-      "com.github.ben-manes.caffeine" % "caffeine" % "2.4.0",
-      "com.github.ben-manes.caffeine" % "guava" % "2.4.0"
+      "co.fs2" %% "fs2-cats" % fs2CatsVersion,
+      "com.github.ben-manes.caffeine" % "caffeine" % caffeineVersion,
+      "com.github.ben-manes.caffeine" % "guava" % caffeineVersion
     ),
     scalacOptions ++= Seq(
       "-opt:l:inline",

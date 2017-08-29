@@ -10,7 +10,7 @@ import cats.syntax.flatMap._
 import cats.syntax.traverse._
 import com.datastax.driver.core._
 import com.datastax.driver.core.querybuilder.{ Insert, Select, QueryBuilder => Q }
-import com.twitter.util.{ Await, Try }
+import com.twitter.util.{ Await, Future => TFuture, Try }
 import io.catbird.util._
 import org.scalatest.Matchers
 
@@ -58,13 +58,20 @@ object Main extends App with Matchers {
 
   implicit def buildStatement(s: String): RegularStatement = new SimpleStatement(s)
 
-  val remake: F.Action[Unit] =
-    F.get[Unit](s"""CREATE KEYSPACE IF NOT EXISTS agni_test
+  val cluster = Cluster.builder()
+    .addContactPoint(args(0))
+    .withPort(args(1).toInt)
+    .withProtocolVersion(ProtocolVersion.fromInt(args(2).toInt))
+    .build()
+
+  Try(cluster.connect()) map { implicit session =>
+    val remake: TFuture[Unit] =
+      F.get[Unit](s"""CREATE KEYSPACE IF NOT EXISTS agni_test
                    |  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }
                    |""".stripMargin) >>
-      F.get[Unit]("USE agni_test") >>
-      F.get[Unit](s"DROP TABLE IF EXISTS author") >>
-      F.get[Unit](s"""CREATE TABLE author (
+        F.get[Unit]("USE agni_test") >>
+        F.get[Unit](s"DROP TABLE IF EXISTS author") >>
+        F.get[Unit](s"""CREATE TABLE author (
                    |  id uuid PRIMARY KEY,
                    |  first_name ascii,
                    |  last_name ascii,
@@ -73,46 +80,40 @@ object Main extends App with Matchers {
                    |  works map<ascii, int>,
                    |)""".stripMargin)
 
-  val insertUserQuery: Insert =
-    Q.insertInto("author")
-      .value("id", Q.bindMarker())
-      .value("first_name", Q.bindMarker())
-      .value("last_name", Q.bindMarker())
-      .value("birth", Q.bindMarker())
-      .value("gender", Q.bindMarker())
-      .value("works", Q.bindMarker())
+    val insertUserQuery: Insert =
+      Q.insertInto("author")
+        .value("id", Q.bindMarker())
+        .value("first_name", Q.bindMarker())
+        .value("last_name", Q.bindMarker())
+        .value("birth", Q.bindMarker())
+        .value("gender", Q.bindMarker())
+        .value("works", Q.bindMarker())
 
-  val selectUserQuery: Select =
-    Q.select.all.from("author")
+    val selectUserQuery: Select =
+      Q.select.all.from("author") // .orderBy(Q.asc("birth"))
 
-  def insertUser(p: PreparedStatement, a: Author): F.Action[Unit] =
-    F.bind(p, a) >>= (b => F.get[Unit](b))
+    def insertUser(p: PreparedStatement, a: Author): TFuture[Unit] =
+      F.bind(p, a) >>= (b => F.get[Unit](b))
 
-  val action: F.Action[List[Author]] =
-    remake >>
-      (F.prepare(insertUserQuery) >>=
-        (p => users.traverse(insertUser(p, _)))) >>
-        F.get[List[Author]](selectUserQuery)
+    val action: TFuture[List[Author]] =
+      remake >>
+        (F.prepare(insertUserQuery) >>=
+          (p => users.traverse(insertUser(p, _)))) >>
+          F.get[List[Author]](selectUserQuery)
 
-  val cluster = Cluster.builder()
-    .addContactPoint(args(0))
-    .withPort(args(1).toInt)
-    .withProtocolVersion(ProtocolVersion.fromInt(args(2).toInt))
-    .build()
+    implicit val authorOrdering: Ordering[Author] =
+      (x: Author, y: Author) => y.id.compareTo(x.id)
 
-  implicit val authorOrdering: Ordering[Author] =
-    (x: Author, y: Author) => x.id.compareTo(y.id)
-
-  Try(cluster.connect()) map { session =>
-    Await.result(action.run(session).attempt) match {
+    Await.result(action.attempt) match {
       case Left(e) => throw e
       case Right(xs) =>
-        assert(users.sorted === xs.sorted)
+        println("Result:")
         xs foreach println
+
+        assert(users.sorted === xs.sorted)
     }
   } handle {
     case e: Throwable =>
       e.printStackTrace()
-      sys.exit(1)
   } ensure cluster.close()
 }
