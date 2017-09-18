@@ -25,14 +25,14 @@ object Get {
     override def apply[F[_], E](result: ResultSet, version: ProtocolVersion)(
       implicit
       F: MonadError[F, E],
-      ev: <:<[Throwable, E]): F[Unit] = F.pure(())
+      ev: Throwable <:< E): F[Unit] = F.pure(())
   }
 
   implicit def getOneUnsafe[A](implicit A: RowDecoder[A]): Get[A] = new Get[A] {
     override def apply[F[_], E](result: ResultSet, version: ProtocolVersion)(
       implicit
       F: MonadError[F, E],
-      ev: <:<[Throwable, E]): F[A] =
+      ev: Throwable <:< E): F[A] =
       F.catchNonFatal(A(result.one, version).fold(throw _, identity))
   }
 
@@ -40,7 +40,7 @@ object Get {
     override def apply[F[_], E](result: ResultSet, version: ProtocolVersion)(
       implicit
       F: MonadError[F, E],
-      ev: <:<[Throwable, E]): F[Option[A]] = {
+      ev: Throwable <:< E): F[Option[A]] = {
       val row = result.one
       if (row == null) F.pure(none)
       else A(row, version).fold(F.raiseError(_), a => F.pure(a.some))
@@ -54,7 +54,7 @@ object Get {
     override def apply[F[_], E](result: ResultSet, version: ProtocolVersion)(
       implicit
       F: MonadError[F, E],
-      ev: <:<[Throwable, E]): F[C[A]] = {
+      ev: Throwable <:< E): F[C[A]] = {
       val it = result.iterator
 
       @tailrec def go(m: mutable.Builder[A, C[A]]): F[C[A]] =

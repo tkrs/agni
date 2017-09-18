@@ -2,6 +2,7 @@ import java.time.{ LocalDate, ZoneId }
 import java.util.{ Date, UUID }
 import java.util.concurrent.{ Executor, Executors }
 
+import agni.SessionOp
 import agni.cache.default._
 import agni.twitter.util.Future
 import cats.instances.list._
@@ -10,7 +11,7 @@ import cats.syntax.flatMap._
 import cats.syntax.traverse._
 import com.datastax.driver.core._
 import com.datastax.driver.core.querybuilder.{ Insert, Select, QueryBuilder => Q }
-import com.twitter.util.{ Await, Future => TFuture, Try }
+import com.twitter.util.{ Await, Try, Future => TFuture }
 import io.catbird.util._
 import org.scalatest.Matchers
 
@@ -64,7 +65,7 @@ object Main extends App with Matchers {
     .withProtocolVersion(ProtocolVersion.fromInt(args(2).toInt))
     .build()
 
-  Try(cluster.connect()) map { implicit session =>
+  Try(SessionOp(cluster.connect())) map { implicit session =>
     val remake: TFuture[Unit] =
       F.get[Unit](s"""CREATE KEYSPACE IF NOT EXISTS agni_test
                    |  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }

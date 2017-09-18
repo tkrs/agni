@@ -18,13 +18,13 @@ abstract class Future(implicit ex: Executor, _cache: Cache[String, PreparedState
 
   override protected val cache: Cache[String, PreparedStatement] = _cache
 
-  def getAsync[A: Get](stmt: Statement)(implicit s: Session): TFuture[A] = {
+  def getAsync[A: Get](stmt: Statement)(implicit s: SessionOp): TFuture[A] = {
     val p = Promise[A]
     val f = Guava.async[A](
       s.executeAsync(stmt),
       _.fold(p.setException, p.setValue),
       ex)
-    f(ver(s))
+    f(s.protocolVersion)
     p
   }
 }

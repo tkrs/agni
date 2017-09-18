@@ -19,7 +19,7 @@ abstract class Future(implicit ec: ExecutionContext, _cache: Cache[String, Prepa
 
   override protected val cache: Cache[String, PreparedStatement] = _cache
 
-  override def getAsync[A: Get](stmt: Statement)(implicit s: Session): SFuture[A] = {
+  override def getAsync[A: Get](stmt: Statement)(implicit s: SessionOp): SFuture[A] = {
     val p = Promise[A]
     val f = Guava.async[A](
       s.executeAsync(stmt),
@@ -27,7 +27,7 @@ abstract class Future(implicit ec: ExecutionContext, _cache: Cache[String, Prepa
       new Executor {
         override def execute(command: Runnable): Unit = ec.execute(command)
       })
-    f(ver(s))
+    f(s.protocolVersion)
     p.future
   }
 }

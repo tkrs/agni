@@ -18,7 +18,7 @@ abstract class Task(implicit strategy: Strategy, _cache: Cache[String, PreparedS
 
   override protected val cache: Cache[String, PreparedStatement] = _cache
 
-  override def getAsync[A: Get](stmt: Statement)(implicit s: Session): FTask[A] =
+  override def getAsync[A: Get](stmt: Statement)(implicit s: SessionOp): FTask[A] =
     FTask.async { cb =>
       val f = Guava.async[A](
         s.executeAsync(stmt),
@@ -27,7 +27,7 @@ abstract class Task(implicit strategy: Strategy, _cache: Cache[String, PreparedS
           override def execute(command: Runnable): Unit =
             strategy(command.run())
         })
-      f(ver(s))
+      f(s.protocolVersion)
     }
 }
 

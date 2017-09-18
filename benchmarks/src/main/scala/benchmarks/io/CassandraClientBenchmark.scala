@@ -5,7 +5,7 @@ import java.time.Instant
 import java.util.{ Date, UUID }
 import java.util.concurrent.{ Executor, Executors, TimeUnit }
 
-import agni.{ Result, RowDecoder }
+import agni.{ Result, RowDecoder, SessionOp }
 import cats.instances.try_._
 import cats.instances.list._
 import cats.syntax.traverse._
@@ -88,7 +88,7 @@ abstract class CassandraClientBenchmark {
   } yield ()
 
   var cluster: Cluster = _
-  implicit var session: Session = _
+  implicit var session: SessionOp = _
 
   @Setup()
   def setup(): Unit = {
@@ -97,10 +97,10 @@ abstract class CassandraClientBenchmark {
       .withPort(sys.env.getOrElse("CASSANDRA_PORT", "9042").toInt)
       .withProtocolVersion(ProtocolVersion.V3)
       .build()
-    session = cluster.connect()
+    session = SessionOp(cluster.connect())
     action.get
     session.close()
-    session = cluster.connect(keyspace)
+    session = SessionOp(cluster.connect(keyspace))
   }
 
   @TearDown
@@ -140,8 +140,7 @@ class AgniBenchmark extends CassandraClientBenchmark {
     } yield {
       val A = RowDecoder.apply[User]
       l.map { row =>
-        val v = session.getCluster.getConfiguration.getProtocolOptions.getProtocolVersion
-        val user: Result[User] = A.apply(row, v)
+        val user: Result[User] = A.apply(row, session.protocolVersion)
         user.fold(throw _, identity)
       }.toList
     }
