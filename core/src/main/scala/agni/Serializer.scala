@@ -148,7 +148,7 @@ object Serializer {
 
       }
 
-      val bbs = mutable.ArrayBuilder.make[ByteBuffer]()
+      val bbs = mutable.ArrayBuilder.make[ByteBuffer]
       go(value.toList, bbs, 4).flatMap {
         case (bbs, toAllocate) => Either.catchNonFatal {
           val result = ByteBuffer.allocate(toAllocate)
@@ -172,7 +172,7 @@ object Serializer {
     new Serializer[C[A0]] {
       override def apply(value: C[A0], version: ProtocolVersion): Either[Throwable, ByteBuffer] = {
         if (value == null) Left(new NullPointerException) else {
-          val items = mutable.ArrayBuilder.make[ByteBuffer]()
+          val items = mutable.ArrayBuilder.make[ByteBuffer]
           val it = is.conversion(value).toIterator
 
           @tailrec def go(toAllocate: Int): Either[Throwable, (Array[ByteBuffer], Int)] = {
