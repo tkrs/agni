@@ -33,8 +33,8 @@ script:
     fi
   - |
     if [[ "$TRAVIS_JDK_VERSION" = "openjdk11" && $(cat version.sbt) =~ "-SNAPSHOT" ]]; then
-      export PGP_SECRET_RING_PATH="$(mktemp -d)/secring.asc"
-      echo "${PGP_SECRET}" | base64 --decode > "${PGP_SECRET_RING_PATH}"
+      openssl aes-256-cbc -K $encrypted_4fb843316bad_key -iv $encrypted_4fb843316bad_iv -in .travis/secret-key.asc.enc -out .travis/secret-key.asc -d
+      echo "$PGP_PASSPHRASE" | gpg --passphrase-fd 0 --batch --yes --import .travis/secret-key.asc
       if [ "$TRAVIS_BRANCH" = "master" ]; then
         if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
           sbt ++$TRAVIS_SCALA_VERSION publishSigned
