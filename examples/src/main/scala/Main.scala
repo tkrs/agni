@@ -117,3 +117,9 @@ final case class Author(
   gender: String,
   works: Map[String, Int]
 )
+
+object Author {
+  import agni.generic.semiauto.derivedBinder
+
+  implicit val bind: Binder[Author] = derivedBinder[Author]
+}

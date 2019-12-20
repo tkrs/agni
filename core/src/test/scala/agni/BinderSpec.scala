@@ -9,14 +9,10 @@ import org.scalatest.Assertion
 import org.scalatestplus.mockito.MockitoSugar
 
 class BinderSpec extends TypedSuite with MockitoSugar {
-  import TypedSuite._
 
   def checkType[A: Binder]: Assertion = {
     assertCompiles("Binder.apply[A]")
   }
-
-  test("Binder[Named]")(checkType[Named])
-  test("Binder[IDV]")(checkType[IDV])
 
   test("Binder[T1]")(checkType[T1])
   test("Binder[T2]")(checkType[T2])
