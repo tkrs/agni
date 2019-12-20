@@ -11,7 +11,7 @@ object DerivedRowDecoder extends DerivedRowDecoder1
 trait DerivedRowDecoder1 {
 
   implicit val decodeHNil: DerivedRowDecoder[HNil] =
-    (_, version) => Right(HNil)
+    (_, _) => Right(HNil)
 
   implicit def decodeLabelledHList[K <: Symbol, H, T <: HList](
     implicit

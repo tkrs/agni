@@ -5,6 +5,7 @@ import java.nio.ByteBuffer
 import java.time.{ Instant, LocalDate }
 import java.util.UUID
 
+import agni.internal.ScalaVersionSpecifics._
 import cats.instances.either._
 import cats.syntax.apply._
 import cats.syntax.either._
@@ -13,7 +14,6 @@ import com.datastax.oss.driver.api.core.`type`.codec.TypeCodecs
 import com.datastax.oss.driver.api.core.data.CqlDuration
 
 import scala.annotation.tailrec
-import scala.collection.generic.CanBuildFrom
 
 trait Deserializer[A] {
   self =>
@@ -144,10 +144,10 @@ object Deserializer {
     implicit
     K: Deserializer[K],
     V: Deserializer[V],
-    cbf: CanBuildFrom[Nothing, (K, V), M[K, V]]
+    factory: Factory[(K, V), M[K, V]]
   ): Deserializer[M[K, V]] = new Deserializer[M[K, V]] {
     override def apply(raw: ByteBuffer, version: ProtocolVersion): Either[Throwable, M[K, V]] = {
-      val builder = cbf.apply
+      val builder = factory.newBuilder
       if (raw == null || !raw.hasRemaining)
         builder.result().asRight[Throwable]
       else {
@@ -176,10 +176,10 @@ object Deserializer {
     }
   }
 
-  implicit def deserializeCollection[A, C[_]](implicit A: Deserializer[A], cbf: CanBuildFrom[Nothing, A, C[A]]): Deserializer[C[A]] =
+  implicit def deserializeCollection[A, C[_]](implicit A: Deserializer[A], factory: Factory[A, C[A]]): Deserializer[C[A]] =
     new Deserializer[C[A]] {
       override def apply(raw: ByteBuffer, version: ProtocolVersion): Either[Throwable, C[A]] = {
-        val builder = cbf.apply()
+        val builder = factory.newBuilder
         if (raw == null || !raw.hasRemaining)
           builder.result().asRight
         else {

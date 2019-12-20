@@ -4,6 +4,7 @@ sudo: true
 
 scala:
   - 2.12.10
+  - 2.13.1
 
 jdk:
   - openjdk11
@@ -25,13 +26,13 @@ install:
 
 script:
   - |
-    if [[ "$TRAVIS_JDK_VERSION" = "openjdk11" && "$TRAVIS_SCALA_VERSION" = 2.12.* ]]; then
+    if [[ "$TRAVIS_JDK_VERSION" = "openjdk11" && "$TRAVIS_SCALA_VERSION" = 2.13.* ]]; then
       sbt ++$TRAVIS_SCALA_VERSION clean coverage compile test:compile test coverageReport coverageOff && codecov
     else
       sbt ++$TRAVIS_SCALA_VERSION clean compile test:compile test
     fi
   - |
-    if [[ "$TRAVIS_JDK_VERSION" = "openjdk8" && $(cat version.sbt) =~ "-SNAPSHOT" ]]; then
+    if [[ "$TRAVIS_JDK_VERSION" = "openjdk11" && $(cat version.sbt) =~ "-SNAPSHOT" ]]; then
       export PGP_SECRET_RING_PATH="$(mktemp -d)/secring.asc"
       echo "${PGP_SECRET}" | base64 --decode > "${PGP_SECRET_RING_PATH}"
       if [ "$TRAVIS_BRANCH" = "master" ]; then

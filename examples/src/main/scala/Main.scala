@@ -13,20 +13,20 @@ import org.scalatest.Matchers
 object Main extends IOApp with Matchers {
   import Query._
 
-  def run(args: List[String]): IO[ExitCode] =
+  def run(args: List[String]) =
     IO(connect()).bracket(action)(c => IO(c.close())).flatTap(xs => IO(xs.foreach(println))) >>=
       (xs => IO(xs.sortBy(_.id) === users).ifM(IO(ExitCode.Success), IO(ExitCode.Error)))
 
   def connect(): CqlSession =
     CqlSession.builder().build()
 
-  def remake(session: CqlSession): IO[Unit] = for {
+  def remake(session: CqlSession) = for {
     _ <- Cql.prepareAsync[IO](session, createKeyspaceQuery) >>= (p => Cql.executeAsync[IO](session, p.bind()))
     _ <- Cql.prepareAsync[IO](session, dropTableQuery) >>= (p => Cql.executeAsync[IO](session, p.bind()))
     _ <- Cql.prepareAsync[IO](session, createTableQuery) >>= (p => Cql.executeAsync[IO](session, p.bind()))
   } yield ()
 
-  def action(session: CqlSession): IO[Stream[Author]] = for {
+  def action(session: CqlSession) = for {
     _ <- remake(session)
 
     _ <- Cql.prepareAsync[IO](session, insertUserQuery).flatTap(a => IO(println(a.getQuery))) >>=
@@ -38,7 +38,7 @@ object Main extends IOApp with Matchers {
       (p => Cql.getRowsAs[IO, Author](session, p.bind()))
   } yield xs
 
-  def insertUser(session: CqlSession, p: PreparedStatement, a: Author): IO[Unit] =
+  def insertUser(session: CqlSession, p: PreparedStatement, a: Author) =
     IO.fromEither(Binder[Author].apply(p.bind(), session.getContext.getProtocolVersion, a)).flatTap(a => IO(println(a.getUuid(0)))) >>=
       (b => Cql.executeAsync[IO](session, b) >>
         IO(println("inserted users")))

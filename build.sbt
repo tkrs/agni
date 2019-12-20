@@ -21,8 +21,8 @@ lazy val allSettings = Seq.concat(
 
 lazy val buildSettings = Seq(
   organization := "com.github.yanana",
-  scalaVersion := "2.12.10",
-  crossScalaVersions := Seq("2.12.10"),
+  scalaVersion := "2.13.1",
+  crossScalaVersions := Seq("2.12.10", "2.13.1"),
   libraryDependencies += compilerPlugin(("org.typelevel" % "kind-projector" % "0.11.0").cross(CrossVersion.full))
 )
 
@@ -49,7 +49,12 @@ lazy val testDeps = Seq(
 ) map (_ % "test")
 
 lazy val baseSettings = Seq(
-  scalacOptions ++= compilerOptions,
+  scalacOptions ++= compilerOptions ++ {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, n)) if n >= 13 => Nil
+      case _                       => Seq("-Xfuture","-Ypartial-unification", "-Yno-adapted-args")
+    }
+  },
   scalacOptions in (Compile, console) := compilerOptions,
   scalacOptions in (Compile, test) := compilerOptions,
   libraryDependencies ++= (coreDeps ++ testDeps).map(_.withSources),
@@ -58,7 +63,7 @@ lazy val baseSettings = Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
   fork in Test := true,
-  scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-import"))
+  scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused:_"))
 )
 
 lazy val publishSettings = Seq(
@@ -103,8 +108,24 @@ lazy val noPublishSettings = Seq(
   publishArtifact := false
 )
 
+lazy val crossVersionSharedSources: Seq[Setting[_]] =
+  Seq(Compile, Test).map { sc =>
+    (sc / unmanagedSourceDirectories) ++= {
+      (sc / unmanagedSourceDirectories).value.flatMap { dir =>
+        if (dir.getName != "scala") Seq(dir)
+        else
+          CrossVersion.partialVersion(scalaVersion.value) match {
+            case Some((2, n)) if n >= 13 => Seq(file(dir.getPath + "_2.13+"))
+            case _                       => Seq(file(dir.getPath + "_2.12-"))
+          }
+      }
+    }
+  }
+
+
 lazy val core = project.in(file("core"))
   .settings(allSettings)
+  .settings(crossVersionSharedSources)
   .settings(
     sourceGenerators in Compile += (sourceManaged in Compile).map(Boilerplate.gen).taskValue
   )
@@ -199,15 +220,12 @@ lazy val compilerOptions = Seq(
   "-encoding", "UTF-8",
   "-unchecked",
   "-feature",
-  "-Ypartial-unification",
   "-language:existentials",
   "-language:higherKinds",
   "-language:implicitConversions",
   "-language:postfixOps",
-  "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
-  "-Ywarn-unused-import",
-  "-Xfuture",
+  "-Ywarn-unused:_",
   "-Xlint"
 )
