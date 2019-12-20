@@ -3,14 +3,10 @@ package agni
 import org.scalatest.Assertion
 
 class RowDecoderSpec extends TypedSuite {
-  import TypedSuite._
 
   def checkType[A: RowDecoder]: Assertion = {
     assertCompiles("RowDecoder.apply[A]")
   }
-
-  test("RowDecoder[Named]")(checkType[Named])
-  test("RowDecoder[IDV]")(checkType[IDV])
 
   test("RowDecoder[T1]")(checkType[T1])
   test("RowDecoder[T2]")(checkType[T2])

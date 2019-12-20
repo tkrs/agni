@@ -26,8 +26,6 @@ object Main extends IOApp with Matchers {
     _ <- Cql.prepareAsync[IO](session, createTableQuery) >>= (p => Cql.executeAsync[IO](session, p.bind()))
   } yield ()
 
-  private[this] val decode: RowDecoder[Author] = RowDecoder[Author]
-
   def action(session: CqlSession): IO[Stream[Author]] = for {
     _ <- remake(session)
 
@@ -37,8 +35,7 @@ object Main extends IOApp with Matchers {
     v = session.getContext.getProtocolVersion
 
     xs <- Cql.prepareAsync[IO](session, selectUserQuery).flatTap(a => IO(println(a.getQuery))) >>=
-      (p => Cql.getRows[IO](session, p.bind())) >>=
-      (rows => rows.traverse(row => IO.fromEither(decode(row, v))))
+      (p => Cql.getRowsAs[IO, Author](session, p.bind()))
   } yield xs
 
   def insertUser(session: CqlSession, p: PreparedStatement, a: Author): IO[Unit] =
@@ -119,7 +116,8 @@ final case class Author(
 )
 
 object Author {
-  import agni.generic.semiauto.derivedBinder
+  import agni.generic.semiauto._
 
   implicit val bind: Binder[Author] = derivedBinder[Author]
+  implicit val decode: RowDecoder[Author] = derivedRowDecoder[Author]
 }
