@@ -1,15 +1,11 @@
 language: scala
 dist: trusty
 sudo: true
-services:
-  - docker
 
 scala:
-  - 2.11.12
   - 2.12.10
 
 jdk:
-  - openjdk8
   - openjdk11
   - openjdk-ea
 
@@ -23,14 +19,13 @@ cache:
     - $HOME/.sbt/boot
     - $HOME/.sbt/launchers
     - $HOME/.coursier
-    - $HOME/.cache/install-jdk
 
 install:
   - pip install --user codecov
 
 script:
   - |
-    if [[ "$TRAVIS_JDK_VERSION" = "openjdk8" && "$TRAVIS_SCALA_VERSION" = 2.12.* ]]; then
+    if [[ "$TRAVIS_JDK_VERSION" = "openjdk11" && "$TRAVIS_SCALA_VERSION" = 2.12.* ]]; then
       sbt ++$TRAVIS_SCALA_VERSION clean coverage compile test:compile test coverageReport coverageOff && codecov
     else
       sbt ++$TRAVIS_SCALA_VERSION clean compile test:compile test

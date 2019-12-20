@@ -22,7 +22,7 @@ lazy val allSettings = Seq.concat(
 lazy val buildSettings = Seq(
   organization := "com.github.yanana",
   scalaVersion := "2.12.10",
-  crossScalaVersions := Seq("2.11.12", "2.12.10"),
+  crossScalaVersions := Seq("2.12.10"),
   libraryDependencies += compilerPlugin(("org.typelevel" % "kind-projector" % "0.11.0").cross(CrossVersion.full))
 )
 

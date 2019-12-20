@@ -10,8 +10,6 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import com.datastax.oss.driver.api.querybuilder.{ QueryBuilder => Q }
 import org.scalatest.Matchers
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 object Main extends IOApp with Matchers {
   import Query._
 
