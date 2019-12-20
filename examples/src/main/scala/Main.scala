@@ -1,38 +1,52 @@
-import java.io.Closeable
 import java.time.LocalDate
 import java.util.UUID
-import java.util.concurrent.{ Executor, Executors }
 
-import agni.free.session._
-import agni.effect.Task
-import cats.data.Kleisli
+import agni.catsEffect.async._
+import agni.{ Binder, RowDecoder, Cql }
+import cats.effect.{ ExitCode, IO, IOApp }
 import cats.implicits._
-import cats.effect.{ IO, IOApp }
-import cats.{ MonadError, ~> }
-import com.datastax.oss.driver.api.core.cql.{ PreparedStatement, SimpleStatement }
 import com.datastax.oss.driver.api.core.CqlSession
+import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import com.datastax.oss.driver.api.querybuilder.{ QueryBuilder => Q }
 import org.scalatest.Matchers
 
-import scala.util.control.NonFatal
-import cats.effect.ExitCode
+import scala.concurrent.ExecutionContext.Implicits.global
 
-// Usage: sbt "examples/runMain Main HOST PORT PROTOCOL_VERSION"
-// Example: sbt "examples/runMain Main 127.0.0.1 9042 4"
 object Main extends IOApp with Matchers {
+  import Query._
 
-  implicit val ex: Executor = Executors.newWorkStealingPool
+  def run(args: List[String]): IO[ExitCode] =
+    IO(connect()).bracket(action)(c => IO(c.close())).flatTap(xs => IO(xs.foreach(println))) >>=
+      (xs => IO(xs.sortBy(_.id) === users).ifM(IO(ExitCode.Success), IO(ExitCode.Error)))
 
-  implicit object F_ extends Task[IO]
+  def connect(): CqlSession =
+    CqlSession.builder().build()
 
-  case class Author(
-    id: UUID,
-    first_name: String,
-    last_name: String,
-    birth: LocalDate,
-    gender: String,
-    works: Map[String, Int]
-  )
+  def remake(session: CqlSession): IO[Unit] = for {
+    _ <- Cql.prepareAsync[IO](session, createKeyspaceQuery) >>= (p => Cql.executeAsync[IO](session, p.bind()))
+    _ <- Cql.prepareAsync[IO](session, dropTableQuery) >>= (p => Cql.executeAsync[IO](session, p.bind()))
+    _ <- Cql.prepareAsync[IO](session, createTableQuery) >>= (p => Cql.executeAsync[IO](session, p.bind()))
+  } yield ()
+
+  private[this] val decode: RowDecoder[Author] = RowDecoder[Author]
+
+  def action(session: CqlSession): IO[Stream[Author]] = for {
+    _ <- remake(session)
+
+    _ <- Cql.prepareAsync[IO](session, insertUserQuery).flatTap(a => IO(println(a.getQuery))) >>=
+      (p => users.traverse(x => insertUser(session, p, x)))
+
+    v = session.getContext.getProtocolVersion
+
+    xs <- Cql.prepareAsync[IO](session, selectUserQuery).flatTap(a => IO(println(a.getQuery))) >>=
+      (p => Cql.getRows[IO](session, p.bind())) >>=
+      (rows => rows.traverse(row => IO.fromEither(decode(row, v))))
+  } yield xs
+
+  def insertUser(session: CqlSession, p: PreparedStatement, a: Author): IO[Unit] =
+    IO.fromEither(Binder[Author].apply(p.bind(), session.getContext.getProtocolVersion, a)).flatTap(a => IO(println(a.getUuid(0)))) >>=
+      (b => Cql.executeAsync[IO](session, b) >>
+        IO(println("inserted users")))
 
   val users = List(
     Author(UUID.randomUUID(), "Edna", "O'Brien", LocalDate.of(1932, 12, 15), "female", Map(
@@ -57,75 +71,23 @@ object Main extends IOApp with Matchers {
       "The Vampire's Assistant" -> 2000,
       "Tunnels of Blood" -> 2000
     ))
-  )
+  ).sortBy(_.id)
 
-  implicit def buildStatement(s: String): SimpleStatement = SimpleStatement.newInstance(s)
-
-  def newSession = IO(CqlSession.builder().build())
-
-  def bracket[R <: Closeable, F[_], A](fr: F[R])(f: R => F[A])(implicit F: MonadError[F, Throwable]): F[A] =
-    F.flatMap(fr)(r => {
-      F.recoverWith(F.flatMap(f(r)) { a => r.close(); F.pure(a) }) {
-        case NonFatal(e) =>
-          try r.close() catch {
-            case NonFatal(e) => e.printStackTrace()
-          }
-          F.raiseError(e)
-      }
-    })
-
-  val S = implicitly[SessionOps[SessionOp]]
-
-  import Query._
-
-  def remake: S.SessionF[Unit] = for {
-    _ <- S.prepare(createKeyspace).flatMap(p => S.execute[Unit](p.bind()))
-    _ <- S.prepare(dropTable).flatMap(p => S.execute[Unit](p.bind()))
-    _ <- S.prepare(createTable).flatMap(p => S.execute[Unit](p.bind()))
-  } yield ()
-
-  def insertUser(p: PreparedStatement, a: Author): S.SessionF[Unit] =
-    S.bind(p, a).flatMap(b => S.execute[Unit](b))
-
-  def action: S.SessionF[List[Author]] = for {
-    _ <- remake
-    _ <- S.prepare(insertUserQuery).flatMap(p => users.traverse(x => insertUser(p, x)))
-    xs <- S.prepare(selectUserQuery).flatMap(p => S.execute[List[Author]](p.bind()))
-  } yield xs
-
-  type H[A] = Kleisli[IO, CqlSession, A]
-
-  def interpret(implicit handler: SessionOp ~> H): H[List[Author]] =
-    action.foldMap(handler)
-
-  def run(args: List[String]): IO[ExitCode] = {
-    import SessionOp.Handler._
-    newSession.bracket(interpret.run)(c => IO(c.close()))
-      .flatTap(xs => IO(xs.foreach(println)))
-      .flatMap(xs => IO(assert(users.sorted === xs.sorted)))
-      .map(_ => ExitCode.Success)
-  }
-
-  implicit val authorOrdering: Ordering[Author] = new Ordering[Author] {
-    def compare(x: Author, y: Author): Int = y.id.compareTo(x.id)
-  }
-
-  // Await.result(run().attempt) match {
 }
 
 object Query {
   private[this] val keyspace = "agni_test"
   private[this] val tableName = "author"
 
-  val createKeyspace =
+  val createKeyspaceQuery =
     s"""CREATE KEYSPACE IF NOT EXISTS $keyspace
        |  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }
        |""".stripMargin
 
-  val dropTable =
+  val dropTableQuery =
     s"DROP TABLE IF EXISTS $keyspace.$tableName"
 
-  val createTable =
+  val createTableQuery =
     s"""CREATE TABLE $keyspace.$tableName (
        |  id uuid PRIMARY KEY,
        |  first_name ascii,
@@ -148,3 +110,12 @@ object Query {
   val selectUserQuery =
     Q.selectFrom(keyspace, tableName).all().build()
 }
+
+final case class Author(
+  id: UUID,
+  first_name: String,
+  last_name: String,
+  birth: LocalDate,
+  gender: String,
+  works: Map[String, Int]
+)

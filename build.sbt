@@ -9,8 +9,8 @@ lazy val root = project.in(file("."))
   .settings(name := "agni")
   .settings(allSettings)
   .settings(noPublishSettings)
-  .aggregate(core, `twitter-util`, monix, `cats-effect`, free, examples)
-  .dependsOn(core, `twitter-util`, monix, `cats-effect`, free, examples)
+  .aggregate(core, `twitter-util`, monix, `cats-effect`, examples)
+  .dependsOn(core, `twitter-util`, monix, `cats-effect`, examples)
 
 lazy val allSettings = Seq.concat(
   buildSettings,
@@ -23,20 +23,18 @@ lazy val buildSettings = Seq(
   organization := "com.github.yanana",
   scalaVersion := "2.12.10",
   crossScalaVersions := Seq("2.11.12", "2.12.10"),
-  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.11.0").cross(CrossVersion.full))
+  libraryDependencies += compilerPlugin(("org.typelevel" % "kind-projector" % "0.11.0").cross(CrossVersion.full))
 )
 
 val datastaxVersion = "4.3.0"
 val catsVersion = "2.0.0"
-val iotaVersion = "0.3.10"
 val shapelessVersion = "2.3.3"
 val scalacheckVersion = "1.14.1"
 val scalatestVersion = "3.0.8"
 val catbirdVersion = "19.9.0"
 val monixVersion = "3.1.0"
-val mockitoVersion = "2.23.0"
 val catsEffectVersion = "2.0.0"
-val caffeineVersion = "2.8.0"
+val mockitoVersion = "3.1.0"
 
 lazy val coreDeps = Seq(
   "com.datastax.oss" % "java-driver-core" % datastaxVersion,
@@ -159,21 +157,6 @@ lazy val `cats-effect` = project.in(file("cats-effect"))
   )
   .dependsOn(core)
 
-lazy val free = project.in(file("free"))
-  .settings(allSettings)
-  .settings(
-    description := "agni free",
-    moduleName := "agni-free",
-    name := "free",
-  )
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-free" % catsVersion,
-      "io.frees" %% "iota-core"  % iotaVersion
-    )
-  )
-  .dependsOn(core)
-
 lazy val benchmarks = project.in(file("benchmarks"))
   .settings(allSettings)
   .settings(noPublishSettings)
@@ -183,16 +166,6 @@ lazy val benchmarks = project.in(file("benchmarks"))
     name := "benchmarks",
   )
   .settings(
-    libraryDependencies ++= coreDeps ++ Seq(
-      "io.catbird" %% "catbird-util" % catbirdVersion,
-      "io.monix" %% "monix-eval" % monixVersion,
-      "io.monix" %% "monix-tail" % monixVersion,
-      "org.typelevel" %% "cats-effect" % catsEffectVersion,
-      "com.github.ben-manes.caffeine" % "caffeine" % caffeineVersion,
-      "com.github.ben-manes.caffeine" % "guava" % caffeineVersion
-    ),
-  )
-  .settings(
     scalacOptions ++= Seq(
       "-opt:l:inline",
       "-opt-inline-from:**",
@@ -200,12 +173,7 @@ lazy val benchmarks = project.in(file("benchmarks"))
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(
-    `twitter-util` % "test->test",
-    monix % "test->test",
-    `cats-effect` % "test->test",
-    free % "test->test"
-  )
+  .dependsOn(core % "test->test")
 
 lazy val examples = project.in(file("examples"))
   .settings(allSettings)
@@ -218,11 +186,12 @@ lazy val examples = project.in(file("examples"))
   .settings(
     libraryDependencies ++= Seq(
       "com.datastax.oss" % "java-driver-query-builder" % datastaxVersion,
+      "org.typelevel" %% "cats-effect" % catsEffectVersion,
       "org.slf4j" % "slf4j-simple" % "1.7.13",
       "org.scalatest" %% "scalatest" % scalatestVersion
     )
   )
-  .dependsOn(`cats-effect`, free)
+  .dependsOn(`cats-effect`)
 
 lazy val compilerOptions = Seq(
   "-target:jvm-1.8",
@@ -230,6 +199,7 @@ lazy val compilerOptions = Seq(
   "-encoding", "UTF-8",
   "-unchecked",
   "-feature",
+  "-Ypartial-unification",
   "-language:existentials",
   "-language:higherKinds",
   "-language:implicitConversions",
@@ -237,6 +207,7 @@ lazy val compilerOptions = Seq(
   "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
+  "-Ywarn-unused-import",
   "-Xfuture",
   "-Xlint"
 )
