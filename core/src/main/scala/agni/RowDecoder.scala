@@ -6,21 +6,21 @@ import shapeless.labelled._
 import shapeless.{ ::, HList, HNil, LabelledGeneric, Lazy, Witness }
 
 trait RowDecoder[A] {
-  def apply(row: Row, version: ProtocolVersion): Result[A]
+  def apply(row: Row, version: ProtocolVersion): Either[Throwable, A]
 }
 
 object RowDecoder extends LowPriorityRowDecoder with TupleRowDecoder {
 
   def apply[A](implicit A: RowDecoder[A]): RowDecoder[A] = A
 
-  def unsafeGet[A: RowDecoder](f: Row => Result[A]): RowDecoder[A] =
+  def unsafeGet[A: RowDecoder](f: Row => Either[Throwable, A]): RowDecoder[A] =
     new RowDecoder[A] {
-      def apply(s: Row, version: ProtocolVersion): Result[A] = f(s)
+      def apply(s: Row, version: ProtocolVersion): Either[Throwable, A] = f(s)
     }
 
   implicit val decodeHNil: RowDecoder[HNil] =
     new RowDecoder[HNil] {
-      def apply(s: Row, version: ProtocolVersion): Result[HNil] =
+      def apply(s: Row, version: ProtocolVersion): Either[Throwable, HNil] =
         Right(HNil)
     }
 
@@ -31,7 +31,7 @@ object RowDecoder extends LowPriorityRowDecoder with TupleRowDecoder {
     T: RowDecoder[T]
   ): RowDecoder[FieldType[K, H] :: T] =
     new RowDecoder[FieldType[K, H] :: T] {
-      def apply(row: Row, version: ProtocolVersion): Result[FieldType[K, H] :: T] = for {
+      def apply(row: Row, version: ProtocolVersion): Either[Throwable, FieldType[K, H] :: T] = for {
         h <- H(row, K.value.name, version)
         t <- T(row, version)
       } yield field[K](h) :: t
@@ -41,7 +41,7 @@ object RowDecoder extends LowPriorityRowDecoder with TupleRowDecoder {
     implicit
     A: RowDeserializer[A]
   ): RowDecoder[A] = new RowDecoder[A] {
-    def apply(row: Row, version: ProtocolVersion): Result[A] =
+    def apply(row: Row, version: ProtocolVersion): Either[Throwable, A] =
       A.apply(row, 0, version)
   }
 }
@@ -54,7 +54,7 @@ trait LowPriorityRowDecoder {
     decode: Lazy[RowDecoder[R]]
   ): RowDecoder[A] =
     new RowDecoder[A] {
-      def apply(s: Row, version: ProtocolVersion): Result[A] =
+      def apply(s: Row, version: ProtocolVersion): Either[Throwable, A] =
         decode.value(s, version) map (gen from)
     }
 }

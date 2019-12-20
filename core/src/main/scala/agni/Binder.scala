@@ -6,7 +6,7 @@ import shapeless.labelled.FieldType
 import shapeless.{ ::, HList, HNil, LabelledGeneric, Lazy, Witness }
 
 trait Binder[A] {
-  def apply(bound: BoundStatement, version: ProtocolVersion, a: A): Result[BoundStatement]
+  def apply(bound: BoundStatement, version: ProtocolVersion, a: A): Either[Throwable, BoundStatement]
 }
 
 object Binder extends LowPriorityBinder with TupleBinder {
@@ -14,7 +14,7 @@ object Binder extends LowPriorityBinder with TupleBinder {
   def apply[A](implicit A: Binder[A]): Binder[A] = A
 
   implicit val bindHnil: Binder[HNil] = new Binder[HNil] {
-    override def apply(bound: BoundStatement, version: ProtocolVersion, a: HNil): Result[BoundStatement] = Right(bound)
+    override def apply(bound: BoundStatement, version: ProtocolVersion, a: HNil): Either[Throwable, BoundStatement] = Right(bound)
   }
 
   implicit def bindLabelledHList[K <: Symbol, H, T <: HList](
@@ -24,7 +24,7 @@ object Binder extends LowPriorityBinder with TupleBinder {
     T: Binder[T]
   ): Binder[FieldType[K, H] :: T] =
     new Binder[FieldType[K, H] :: T] {
-      override def apply(bound: BoundStatement, version: ProtocolVersion, xs: FieldType[K, H] :: T): Result[BoundStatement] =
+      override def apply(bound: BoundStatement, version: ProtocolVersion, xs: FieldType[K, H] :: T): Either[Throwable, BoundStatement] =
         xs match {
           case h :: t => for {
             b <- H(bound, K.value.name, h, version)
@@ -34,7 +34,7 @@ object Binder extends LowPriorityBinder with TupleBinder {
     }
 
   implicit def bindSingle[A](implicit A: RowSerializer[A]): Binder[A] = new Binder[A] {
-    override def apply(bound: BoundStatement, version: ProtocolVersion, a: A): Result[BoundStatement] =
+    override def apply(bound: BoundStatement, version: ProtocolVersion, a: A): Either[Throwable, BoundStatement] =
       A.apply(bound, 0, a, version)
   }
 }
@@ -47,7 +47,7 @@ trait LowPriorityBinder {
     bind: Lazy[Binder[R]]
   ): Binder[A] =
     new Binder[A] {
-      override def apply(bound: BoundStatement, version: ProtocolVersion, a: A): Result[BoundStatement] =
+      override def apply(bound: BoundStatement, version: ProtocolVersion, a: A): Either[Throwable, BoundStatement] =
         bind.value.apply(bound, version, gen.to(a))
     }
 
