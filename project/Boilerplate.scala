@@ -86,7 +86,6 @@ object Boilerplate {
         |package agni
         |
         |import _root_.cats.instances.either._
-        |import _root_.cats.syntax.either._
         |import _root_.cats.syntax.apply._
         |import com.datastax.oss.driver.api.core.cql.Row
         |import com.datastax.oss.driver.api.core.ProtocolVersion
@@ -115,9 +114,6 @@ object Boilerplate {
       block"""
         |package agni
         |
-        |import _root_.cats.instances.either._
-        |import _root_.cats.syntax.either._
-        |import _root_.cats.syntax.apply._
         |import com.datastax.oss.driver.api.core.cql.BoundStatement
         |import com.datastax.oss.driver.api.core.ProtocolVersion
         |

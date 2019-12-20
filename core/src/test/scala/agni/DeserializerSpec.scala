@@ -2,7 +2,6 @@ package agni
 
 import java.nio.ByteBuffer
 
-import cats.syntax.either._
 import com.datastax.oss.driver.api.core.ProtocolVersion
 import org.scalatest.{ Assertion, FunSpec, Matchers }
 

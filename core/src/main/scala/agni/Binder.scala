@@ -1,6 +1,5 @@
 package agni
 
-import cats.syntax.either._
 import com.datastax.oss.driver.api.core.ProtocolVersion
 import com.datastax.oss.driver.api.core.cql.BoundStatement
 import shapeless.labelled.FieldType
