@@ -96,7 +96,7 @@ object Boilerplate {
         -    ${`a:F[A]..n:F[N]`("RowDeserializer")}
         -  ): RowDecoder[${`(A..N)`}] =
         -    new RowDecoder[${`(A..N)`}] {
-        -      def apply(row: Row, ver: ProtocolVersion): Result[${`(A..N)`}] =
+        -      def apply(row: Row, ver: ProtocolVersion): Either[Throwable, ${`(A..N)`}] =
         -        $tupled
         -    }
         |}
@@ -123,7 +123,7 @@ object Boilerplate {
         -    ${`a:F[A]..n:F[N]`("RowSerializer")}
         -  ): Binder[${`(A..N)`}] =
         -    new Binder[${`(A..N)`}] {
-        -      def apply(bound: BoundStatement, ver: ProtocolVersion, xs: ${`(A..N)`}): Result[BoundStatement] =
+        -      def apply(bound: BoundStatement, ver: ProtocolVersion, xs: ${`(A..N)`}): Either[Throwable, BoundStatement] =
         -        $expr
         -    }
         |}
