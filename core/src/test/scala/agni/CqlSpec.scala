@@ -19,8 +19,8 @@ class CqlSpec extends AsyncFunSpec with MockitoSugar with Matchers {
 
   describe("getRows") {
     it("should convert to Stream[Row] the value got from AsyncResultSet#currentPage()") {
-      val session = mock[CqlSession]
-      val stmt = mock[BoundStatement]
+      val session         = mock[CqlSession]
+      val stmt            = mock[BoundStatement]
       val asyncResultSet0 = mock[AsyncResultSet]
 
       when(session.executeAsync(stmt))
@@ -60,8 +60,8 @@ class CqlSpec extends AsyncFunSpec with MockitoSugar with Matchers {
 
     it("should be stack-safe") {
       val session = mock[CqlSession]
-      val stmt = mock[BoundStatement]
-      val r = mock[AsyncResultSet]
+      val stmt    = mock[BoundStatement]
+      val r       = mock[AsyncResultSet]
 
       when(session.executeAsync(stmt)).thenReturn(CompletableFuture.completedFuture(r))
 

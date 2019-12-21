@@ -134,9 +134,11 @@ object Serializer {
     V: Serializer[V]
   ): Serializer[M[K, V]] = new Serializer[M[K, V]] {
     override def apply(value: M[K, V], version: ProtocolVersion): Either[Throwable, ByteBuffer] = {
-      @tailrec def go(m: List[(K, V)],
-                      acc: mutable.ArrayBuilder[ByteBuffer],
-                      toAllocate: Int): Either[Throwable, (Array[ByteBuffer], Int)] = m match {
+      @tailrec def go(
+        m: List[(K, V)],
+        acc: mutable.ArrayBuilder[ByteBuffer],
+        toAllocate: Int
+      ): Either[Throwable, (Array[ByteBuffer], Int)] = m match {
         case Nil => (acc.result(), toAllocate).asRight
         case (k, v) :: t =>
           val kv = (K(k, version), V(v, version)).mapN((_, _))
@@ -177,7 +179,7 @@ object Serializer {
         if (value == null) Left(new NullPointerException)
         else {
           val items = mutable.ArrayBuilder.make[ByteBuffer]
-          val it = is(value).iterator
+          val it    = is(value).iterator
 
           @tailrec def go(toAllocate: Int): Either[Throwable, (Array[ByteBuffer], Int)] =
             if (!it.hasNext) (items.result(), toAllocate).asRight

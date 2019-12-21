@@ -134,7 +134,7 @@ object Deserializer {
   // TODO: deserializer varchar
 
   private def read(input: ByteBuffer): ByteBuffer = {
-    val size = input.getInt()
+    val size    = input.getInt()
     val encoded = input.slice()
     encoded.limit(size)
     input.position(input.position() + size)
@@ -157,7 +157,7 @@ object Deserializer {
         @tailrec def go(size: Int): Either[Throwable, M[K, V]] =
           if (size == 0) builder.result().asRight
           else {
-            val encodedKey = read(input)
+            val encodedKey   = read(input)
             val encodedValue = read(input)
 
             (K(encodedKey, version), V(encodedValue, version)).mapN {
@@ -177,8 +177,10 @@ object Deserializer {
     }
   }
 
-  implicit def deserializeCollection[A, C[_]](implicit A: Deserializer[A],
-                                              factory: Factory[A, C[A]]): Deserializer[C[A]] =
+  implicit def deserializeCollection[A, C[_]](
+    implicit A: Deserializer[A],
+    factory: Factory[A, C[A]]
+  ): Deserializer[C[A]] =
     new Deserializer[C[A]] {
       override def apply(raw: ByteBuffer, version: ProtocolVersion): Either[Throwable, C[A]] = {
         val builder = factory.newBuilder

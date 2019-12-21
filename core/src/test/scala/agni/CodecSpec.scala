@@ -16,7 +16,7 @@ import org.scalatestplus.scalacheck.Checkers
 class CodecSpec extends FunSuite with Checkers with Matchers {
 
   implicit val arbString: Arbitrary[String] = Arbitrary(Gen.alphaStr)
-  implicit val arbUUID: Arbitrary[UUID] = Arbitrary(Gen.uuid)
+  implicit val arbUUID: Arbitrary[UUID]     = Arbitrary(Gen.uuid)
   implicit val arbByteBuffer: Arbitrary[ByteBuffer] =
     Arbitrary(Gen.alphaStr.map(a => ByteBuffer.wrap(a.getBytes(UTF_8))))
   implicit val byte: Arbitrary[Byte] = Arbitrary(Gen.choose[Int](0, 255).map(_.toByte))
