@@ -51,8 +51,8 @@ class BinderSpec extends TypedSuite with MockitoSugar {
     when(c.setBytesUnsafe(eqTo(2), eqTo(TypeCodecs.BIGINT.encode(2L, v)))).thenReturn(d)
     when(d.setBytesUnsafe(eqTo(3), eqTo(TypeCodecs.ASCII.encode("z", v)))).thenReturn(e)
 
-    val Right(s) = Binder[(String, Int, Long, String)].apply(a, v, ("a", 1, 2L, "z"))
+    val s = Binder[(String, Int, Long, String)].apply(a, v, ("a", 1, 2L, "z"))
 
-    assert(e === s)
+    assert(s === Right(e))
   }
 }

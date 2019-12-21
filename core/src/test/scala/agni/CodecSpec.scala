@@ -35,8 +35,14 @@ class CodecSpec extends FunSuite with Checkers with Matchers {
 
   def roundTrip[A: Deserializer: Serializer: Arbitrary: Shrink]: Assertion =
     check(Prop.forAll({ a: A =>
-      val Right(se) = Serializer[A].apply(a, ProtocolVersion.DEFAULT)
-      val Right(de) = Deserializer[A].apply(se, ProtocolVersion.DEFAULT)
+      val se = Serializer[A].apply(a, ProtocolVersion.DEFAULT) match {
+        case Right(v) => v
+        case Left(e)  => fail(e)
+      }
+      val de = Deserializer[A].apply(se, ProtocolVersion.DEFAULT) match {
+        case Right(v) => v
+        case Left(e)  => fail(e)
+      }
       de === a
     }))
 
