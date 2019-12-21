@@ -5,8 +5,7 @@ val preferences =
   ScalariformKeys.preferences := ScalariformKeys.preferences.value
     .setPreference(DanglingCloseParenthesis, Force)
 
-lazy val root = project.in(file("."))
-  .settings(name := "agni")
+lazy val agni = project.in(file("."))
   .settings(allSettings)
   .settings(noPublishSettings)
   .aggregate(core, `twitter-util`, monix, `cats-effect`, examples)
@@ -105,9 +104,7 @@ lazy val publishSettings = Seq(
 )
 
 lazy val noPublishSettings = Seq(
-  publish := ((): Unit),
-  publishLocal := ((): Unit),
-  publishArtifact := false
+  skip in publish := true
 )
 
 lazy val crossVersionSharedSources: Seq[Setting[_]] =
@@ -133,16 +130,14 @@ lazy val core = project.in(file("core"))
   )
   .settings(
     description := "agni core",
-    moduleName := "agni-core",
-    name := "core"
+    moduleName := "agni-core"
   )
 
 lazy val `twitter-util` = project.in(file("twitter-util"))
   .settings(allSettings)
   .settings(
     description := "agni twitter-util",
-    moduleName := "agni-twitter-util",
-    name := "twitter-util",
+    moduleName := "agni-twitter-util"
   )
   .settings(
     libraryDependencies ++= Seq(
@@ -155,8 +150,7 @@ lazy val monix = project.in(file("monix"))
   .settings(allSettings)
   .settings(
     description := "agni monix",
-    moduleName := "agni-monix",
-    name := "monix",
+    moduleName := "agni-monix"
   )
   .settings(
     libraryDependencies ++= Seq(
@@ -170,8 +164,7 @@ lazy val `cats-effect` = project.in(file("cats-effect"))
   .settings(allSettings)
   .settings(
     description := "agni cats-effect",
-    moduleName := "agni-cats-effect",
-    name := "cats-effect",
+    moduleName := "agni-cats-effect"
   )
   .settings(
     libraryDependencies ++= Seq(
@@ -185,8 +178,7 @@ lazy val benchmarks = project.in(file("benchmarks"))
   .settings(noPublishSettings)
   .settings(
     description := "agni benchmarks",
-    moduleName := "agni-benchmarks",
-    name := "benchmarks",
+    moduleName := "agni-benchmarks"
   )
   .settings(
     scalacOptions ++= Seq(
@@ -203,8 +195,7 @@ lazy val examples = project.in(file("examples"))
   .settings(noPublishSettings)
   .settings(
     description := "agni examples",
-    moduleName := "agni-examples",
-    name := "examples",
+    moduleName := "agni-examples"
   )
   .settings(
     libraryDependencies ++= Seq(
