@@ -16,9 +16,9 @@ object Boilerplate {
   implicit class BlockHelper(val sc: StringContext) extends AnyVal {
     def block(args: Any*): String = {
       val interpolated = sc.standardInterpolator(treatEscapes, args)
-      val rawLines = interpolated split '\n'
-      val trimmedLines = rawLines map { _ dropWhile (_.isWhitespace) }
-      trimmedLines mkString "\n"
+      val rawLines = interpolated.split('\n')
+      val trimmedLines = rawLines.map { _.dropWhile(_.isWhitespace) }
+      trimmedLines.mkString("\n")
     }
   }
 
@@ -38,13 +38,13 @@ object Boilerplate {
   val maxArity = 22
 
   class TemplateVals(val arity: Int) {
-    val synTypes = (0 until arity) map (n => (n + 'A').toChar)
-    val synVals = (0 until arity) map (n => (n + 'a').toChar)
+    val synTypes = (0 until arity).map(n => (n + 'A').toChar)
+    val synVals = (0 until arity).map(n => (n + 'a').toChar)
 
     val `A..N` = synTypes.mkString(", ")
     val `(A..N)` = if (arity == 1) "Tuple1[A]" else synTypes.mkString("(", ", ", ")")
     val `(_.._)` = if (arity == 1) "Tuple1(a)" else synVals.map(_ => "_").mkString("(", ", ", ")")
-    def `a:F[A]..n:F[N]`(f: String) = (synVals zip synTypes) map { case (v, t) => s"$v: $f[$t]" } mkString ", "
+    def `a:F[A]..n:F[N]`(f: String) = (synVals.zip(synTypes)).map { case (v, t) => s"$v: $f[$t]" }.mkString(", ")
   }
 
   trait Template {
@@ -52,12 +52,14 @@ object Boilerplate {
     def content(tv: TemplateVals): String
     def range: Range = 1 to maxArity
     def body: String = {
-      val headerLines = header split '\n'
-      val rawContents = range map { n => content(new TemplateVals(n)) split '\n' filterNot (_.isEmpty) }
-      val preBody = rawContents.head takeWhile (_ startsWith "|") map (_.tail)
-      val instances = rawContents flatMap { _ filter (_ startsWith "-") map (_.tail) }
-      val postBody = rawContents.head dropWhile (_ startsWith "|") dropWhile (_ startsWith "-") map (_.tail)
-      (headerLines ++ preBody ++ instances ++ postBody) mkString "\n"
+      val headerLines = header.split('\n')
+      val rawContents = range.map { n =>
+        content(new TemplateVals(n)).split('\n').filterNot(_.isEmpty)
+      }
+      val preBody = rawContents.head.takeWhile(_.startsWith("|")).map(_.tail)
+      val instances = rawContents.flatMap { _.filter(_.startsWith("-")).map(_.tail) }
+      val postBody = rawContents.head.dropWhile(_.startsWith("|")).dropWhile(_.startsWith("-")).map(_.tail)
+      (headerLines ++ preBody ++ instances ++ postBody).mkString("\n")
     }
   }
 
@@ -74,23 +76,23 @@ object Boilerplate {
       - Then the last block of lines prefixed with '|'
 
     The block otherwise behaves as a standard interpolated string with regards to variable substitution.
-  */
+   */
 
   object GenTupleRowDecoder extends Template {
     def file(root: File) = root / "agni" / "TupleRowDecoder.scala"
     def content(tv: TemplateVals): String = {
       import tv._
-      val expr = (synVals zipWithIndex) map { case (v, i) => s"$v.apply(row, $i, ver)" } mkString ("(", ", ", ")")
+      val expr = (synVals zipWithIndex).map { case (v, i) => s"$v.apply(row, $i, ver)" }.mkString("(", ", ", ")")
       val tupled = if (arity == 1) s"$expr.map(Tuple1(_))" else s"$expr.mapN(${`(_.._)`})"
       block"""
-        |package agni
-        |
-        |import _root_.cats.instances.either._
-        |import _root_.cats.syntax.apply._
-        |import com.datastax.oss.driver.api.core.cql.Row
-        |import com.datastax.oss.driver.api.core.ProtocolVersion
-        |
-        |trait TupleRowDecoder {
+      |package agni
+      |
+      |import _root_.cats.instances.either._
+      |import _root_.cats.syntax.apply._
+      |import com.datastax.oss.driver.api.core.cql.Row
+      |import com.datastax.oss.driver.api.core.ProtocolVersion
+      |
+      |trait TupleRowDecoder {
         -
         -  implicit def tuple${arity}RowDecoder[${`A..N`}](implicit
         -    ${`a:F[A]..n:F[N]`("RowDeserializer")}
@@ -99,7 +101,7 @@ object Boilerplate {
         -      def apply(row: Row, ver: ProtocolVersion): Either[Throwable, ${`(A..N)`}] =
         -        $tupled
         -    }
-        |}
+      |}
       """
     }
   }
@@ -112,12 +114,12 @@ object Boilerplate {
         .map { case (v, i) => s"$v(${if (i == 0) "bound" else "_"}, $i, xs._${i + 1}, ver)" }
         .foldLeft("") { case (l, r) => if (l.isEmpty) r else s"$l.flatMap($r)" }
       block"""
-        |package agni
-        |
-        |import com.datastax.oss.driver.api.core.cql.BoundStatement
-        |import com.datastax.oss.driver.api.core.ProtocolVersion
-        |
-        |trait TupleBinder {
+      |package agni
+      |
+      |import com.datastax.oss.driver.api.core.cql.BoundStatement
+      |import com.datastax.oss.driver.api.core.ProtocolVersion
+      |
+      |trait TupleBinder {
         -
         -  implicit def tuple${arity}Binder[${`A..N`}](implicit
         -    ${`a:F[A]..n:F[N]`("RowSerializer")}
@@ -126,7 +128,7 @@ object Boilerplate {
         -      def apply(bound: BoundStatement, ver: ProtocolVersion, xs: ${`(A..N)`}): Either[Throwable, BoundStatement] =
         -        $expr
         -    }
-        |}
+      |}
       """
     }
   }

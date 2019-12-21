@@ -27,7 +27,7 @@ install:
 script:
   - |
     if [[ "$TRAVIS_JDK_VERSION" = "openjdk11" && "$TRAVIS_SCALA_VERSION" = 2.13.* ]]; then
-      sbt ++$TRAVIS_SCALA_VERSION clean coverage compile test:compile test coverageReport coverageOff && codecov
+      sbt ++$TRAVIS_SCALA_VERSION clean coverage scalafmtCheckAll scalafmtSbtCheck compile test:compile test coverageReport coverageOff && codecov
     else
       sbt ++$TRAVIS_SCALA_VERSION clean compile test:compile test
     fi

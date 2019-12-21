@@ -4,15 +4,14 @@ import com.datastax.oss.driver.api.core.ProtocolVersion
 import com.datastax.oss.driver.api.core.`type`.codec.TypeCodecs
 import com.datastax.oss.driver.api.core.cql.BoundStatement
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers.{ `eq` => eqTo }
+import org.mockito.ArgumentMatchers.{`eq` => eqTo}
 import org.scalatest.Assertion
 import org.scalatestplus.mockito.MockitoSugar
 
 class BinderSpec extends TypedSuite with MockitoSugar {
 
-  def checkType[A: Binder]: Assertion = {
+  def checkType[A: Binder]: Assertion =
     assertCompiles("Binder.apply[A]")
-  }
 
   test("Binder[T1]")(checkType[T1])
   test("Binder[T2]")(checkType[T2])

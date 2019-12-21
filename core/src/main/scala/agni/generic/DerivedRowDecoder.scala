@@ -1,8 +1,8 @@
 package agni.generic
 
-import agni.{ RowDecoder, RowDeserializer }
+import agni.{RowDecoder, RowDeserializer}
 import shapeless.labelled._
-import shapeless.{ ::, HList, HNil, LabelledGeneric, Lazy, Witness }
+import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
 trait DerivedRowDecoder[A] extends RowDecoder[A]
 
@@ -19,15 +19,16 @@ trait DerivedRowDecoder1 {
     H: RowDeserializer[H],
     T: DerivedRowDecoder[T]
   ): DerivedRowDecoder[FieldType[K, H] :: T] =
-    (row, version) => for {
-      h <- H(row, K.value.name, version)
-      t <- T(row, version)
-    } yield field[K](h) :: t
+    (row, version) =>
+      for {
+        h <- H(row, K.value.name, version)
+        t <- T(row, version)
+      } yield field[K](h) :: t
 
   implicit def decodeCaseClass[A, R <: HList](
     implicit
     gen: LabelledGeneric.Aux[A, R],
     decode: Lazy[DerivedRowDecoder[R]]
   ): DerivedRowDecoder[A] =
-    (row, version) => decode.value(row, version) map (gen from)
+    (row, version) => decode.value(row, version).map(gen from)
 }

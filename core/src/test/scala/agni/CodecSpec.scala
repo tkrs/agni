@@ -4,12 +4,12 @@ import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets._
 import java.time.temporal.ChronoUnit
-import java.time.{ Instant, LocalDate }
+import java.time.{Instant, LocalDate}
 import java.util.UUID
 
 import com.datastax.oss.driver.api.core.ProtocolVersion
 import com.datastax.oss.driver.api.core.data.CqlDuration
-import org.scalacheck.{ Arbitrary, Gen, Prop, Shrink }
+import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}
 import org.scalatest._
 import org.scalatestplus.scalacheck.Checkers
 

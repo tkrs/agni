@@ -4,9 +4,8 @@ import org.scalatest.Assertion
 
 class RowDecoderSpec extends TypedSuite {
 
-  def checkType[A: RowDecoder]: Assertion = {
+  def checkType[A: RowDecoder]: Assertion =
     assertCompiles("RowDecoder.apply[A]")
-  }
 
   test("RowDecoder[T1]")(checkType[T1])
   test("RowDecoder[T2]")(checkType[T2])

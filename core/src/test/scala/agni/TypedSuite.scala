@@ -2,16 +2,17 @@ package agni
 
 import java.net.InetAddress
 import java.nio.ByteBuffer
-import java.time.{ LocalDate, Instant }
+import java.time.{Instant, LocalDate}
 import java.util.UUID
 
-import com.datastax.oss.driver.api.core.data.{ CqlDuration, TupleValue, UdtValue }
+import com.datastax.oss.driver.api.core.data.{CqlDuration, TupleValue, UdtValue}
 import org.scalatest.FunSuite
 import org.scalatestplus.scalacheck.Checkers
 import shapeless.record._
 
 trait TypedSuite extends FunSuite with Checkers {
 
+  // format: off
   type T1 = Option[Int]
   type T2 = (Option[Int], String)
   type T3 = (Option[Int], String, Int)
@@ -37,7 +38,7 @@ trait TypedSuite extends FunSuite with Checkers {
   type T22_2 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double], Iterable[Float], Map[Int, String], UdtValue)
 
   type IDV = Record.`'foo -> Int, 'bar -> Double, 'quux -> Vector[Int]`.T
-
+  // format: on
 }
 
 object TypedSuite {

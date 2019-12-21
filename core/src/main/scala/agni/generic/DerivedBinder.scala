@@ -1,8 +1,8 @@
 package agni.generic
 
-import agni.{ Binder, RowSerializer }
+import agni.{Binder, RowSerializer}
 import shapeless.labelled.FieldType
-import shapeless.{ ::, HList, HNil, LabelledGeneric, Lazy, Witness }
+import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
 trait DerivedBinder[A] extends Binder[A]
 
@@ -25,6 +25,5 @@ trait DerivedBinder1 {
     gen: LabelledGeneric.Aux[A, R],
     bind: Lazy[DerivedBinder[R]]
   ): DerivedBinder[A] =
-    (bound, version, a) =>
-      bind.value(bound, version, gen.to(a))
+    (bound, version, a) => bind.value(bound, version, gen.to(a))
 }

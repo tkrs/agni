@@ -1,11 +1,5 @@
-import com.typesafe.sbt.SbtScalariform.ScalariformKeys
-import scalariform.formatter.preferences._
-
-val preferences =
-  ScalariformKeys.preferences := ScalariformKeys.preferences.value
-    .setPreference(DanglingCloseParenthesis, Force)
-
-lazy val agni = project.in(file("."))
+lazy val agni = project
+  .in(file("."))
   .settings(allSettings)
   .settings(noPublishSettings)
   .aggregate(core, `twitter-util`, monix, `cats-effect`, examples)
@@ -14,8 +8,7 @@ lazy val agni = project.in(file("."))
 lazy val allSettings = Seq.concat(
   buildSettings,
   baseSettings,
-  publishSettings,
-  Seq(preferences)
+  publishSettings
 )
 
 lazy val buildSettings = Seq(
@@ -45,7 +38,7 @@ lazy val testDeps = Seq(
   "org.scalacheck" %% "scalacheck" % scalacheckVersion,
   "org.scalatest" %% "scalatest" % scalatestVersion,
   "org.mockito" % "mockito-core" % mockitoVersion
-) map (_ % "test")
+).map(_ % "test")
 
 lazy val baseSettings = Seq(
   scalacOptions ++= compilerOptions ++ {
@@ -62,7 +55,7 @@ lazy val baseSettings = Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
   fork in Test := true,
-  scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused:_"))
+  scalacOptions in (Compile, console) ~= (_.filterNot(_ == "-Ywarn-unused:_"))
 )
 
 lazy val publishSettings = Seq(
@@ -72,13 +65,13 @@ lazy val publishSettings = Seq(
   licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
   publishMavenStyle := true,
   publishArtifact in Test := false,
-  pomIncludeRepository := { _ => false },
+  pomIncludeRepository := (_ => false),
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
+      Some("snapshots".at(nexus + "content/repositories/snapshots"))
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases".at(nexus + "service/local/staging/deploy/maven2"))
   },
   scmInfo := Some(
     ScmInfo(
@@ -121,8 +114,8 @@ lazy val crossVersionSharedSources: Seq[Setting[_]] =
     }
   }
 
-
-lazy val core = project.in(file("core"))
+lazy val core = project
+  .in(file("core"))
   .settings(allSettings)
   .settings(crossVersionSharedSources)
   .settings(
@@ -133,7 +126,8 @@ lazy val core = project.in(file("core"))
     moduleName := "agni-core"
   )
 
-lazy val `twitter-util` = project.in(file("twitter-util"))
+lazy val `twitter-util` = project
+  .in(file("twitter-util"))
   .settings(allSettings)
   .settings(
     description := "agni twitter-util",
@@ -146,7 +140,8 @@ lazy val `twitter-util` = project.in(file("twitter-util"))
   )
   .dependsOn(core)
 
-lazy val monix = project.in(file("monix"))
+lazy val monix = project
+  .in(file("monix"))
   .settings(allSettings)
   .settings(
     description := "agni monix",
@@ -160,7 +155,8 @@ lazy val monix = project.in(file("monix"))
   )
   .dependsOn(core)
 
-lazy val `cats-effect` = project.in(file("cats-effect"))
+lazy val `cats-effect` = project
+  .in(file("cats-effect"))
   .settings(allSettings)
   .settings(
     description := "agni cats-effect",
@@ -173,7 +169,8 @@ lazy val `cats-effect` = project.in(file("cats-effect"))
   )
   .dependsOn(core)
 
-lazy val benchmarks = project.in(file("benchmarks"))
+lazy val benchmarks = project
+  .in(file("benchmarks"))
   .settings(allSettings)
   .settings(noPublishSettings)
   .settings(
@@ -190,7 +187,8 @@ lazy val benchmarks = project.in(file("benchmarks"))
   .enablePlugins(JmhPlugin)
   .dependsOn(core % "test->test")
 
-lazy val examples = project.in(file("examples"))
+lazy val examples = project
+  .in(file("examples"))
   .settings(allSettings)
   .settings(noPublishSettings)
   .settings(
@@ -210,7 +208,8 @@ lazy val examples = project.in(file("examples"))
 lazy val compilerOptions = Seq(
   "-target:jvm-1.8",
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-unchecked",
   "-feature",
   "-language:existentials",

@@ -4,7 +4,7 @@ import java.util.concurrent.CompletionStage
 
 import agni.util.Par
 import agni.internal.Pageable
-import cats.{ Apply, MonadError }
+import cats.{Apply, MonadError}
 import cats.syntax.functor._
 import cats.syntax.applicative._
 import cats.syntax.flatMap._

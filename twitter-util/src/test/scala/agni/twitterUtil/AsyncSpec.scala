@@ -1,10 +1,10 @@
 package agni.twitterUtil
 
-import java.util.concurrent.{ CancellationException, CompletionStage, CompletableFuture }
+import java.util.concurrent.{CancellationException, CompletableFuture, CompletionStage}
 import java.util.function.Supplier
 
 import agni.util.Par
-import com.twitter.util.{ Await, Future }
+import com.twitter.util.{Await, Future}
 import org.scalatest._
 
 import scala.concurrent.duration._

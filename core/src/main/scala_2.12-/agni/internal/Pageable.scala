@@ -2,7 +2,7 @@ package agni.internal
 
 import java.util.concurrent.CompletionStage
 
-import agni.{ Cql, RowDecoder }
+import agni.{Cql, RowDecoder}
 import agni.util.Par
 import cats.MonadError
 import cats.instances.stream._

@@ -3,7 +3,7 @@ package agni
 import java.util.concurrent.CompletableFuture
 
 import com.datastax.oss.driver.api.core.CqlSession
-import com.datastax.oss.driver.api.core.cql.{ AsyncResultSet, BoundStatement, Row }
+import com.datastax.oss.driver.api.core.cql.{AsyncResultSet, BoundStatement, Row}
 import org.scalatest._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -53,7 +53,9 @@ class CqlSpec extends AsyncFunSpec with MockitoSugar with Matchers {
 
       val got = Cql.getRows[Future](session, stmt)
 
-      got.map { xs => xs shouldBe (rows0 ++ rows1 ++ rows2 ++ rows3).toStream }
+      got.map { xs =>
+        xs shouldBe (rows0 ++ rows1 ++ rows2 ++ rows3).toStream
+      }
     }
 
     it("should be stack-safe") {
