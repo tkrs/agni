@@ -1,3 +1,5 @@
+import Dependencies._
+
 lazy val agni = project
   .in(file("."))
   .settings(allSettings)
@@ -13,32 +15,14 @@ lazy val allSettings = Seq.concat(
 
 lazy val buildSettings = Seq(
   organization := "com.github.tkrs",
-  scalaVersion := "2.13.1",
-  crossScalaVersions := Seq("2.12.10", "2.13.1"),
-  libraryDependencies += compilerPlugin(("org.typelevel" % "kind-projector" % "0.11.0").cross(CrossVersion.full))
+  scalaVersion := V.`scala2.13`,
+  crossScalaVersions := Seq(V.`scala2.12`, V.`scala2.13`),
+  libraryDependencies += compilerPlugin((P.kindeProjector).cross(CrossVersion.full))
 )
 
-val datastaxVersion = "4.3.0"
-val catsVersion = "2.0.0"
-val shapelessVersion = "2.3.3"
-val scalacheckVersion = "1.14.1"
-val scalatestVersion = "3.0.8"
-val catbirdVersion = "19.9.0"
-val monixVersion = "3.1.0"
-val catsEffectVersion = "2.0.0"
-val mockitoVersion = "3.1.0"
+lazy val coreDeps = Seq(P.datastaxJavaDriver, P.catsCore, P.shapeless)
 
-lazy val coreDeps = Seq(
-  "com.datastax.oss" % "java-driver-core" % datastaxVersion,
-  "org.typelevel" %% "cats-core" % catsVersion,
-  "com.chuusai" %% "shapeless" % shapelessVersion
-)
-
-lazy val testDeps = Seq(
-  "org.scalacheck" %% "scalacheck" % scalacheckVersion,
-  "org.scalatest" %% "scalatest" % scalatestVersion,
-  "org.mockito" % "mockito-core" % mockitoVersion
-).map(_ % "test")
+lazy val testDeps = Seq(P.scalacheck, P.scalatest, P.mockito).map(_ % Test)
 
 lazy val baseSettings = Seq(
   scalacOptions ++= compilerOptions ++ {
@@ -134,9 +118,7 @@ lazy val `twitter-util` = project
     moduleName := "agni-twitter-util"
   )
   .settings(
-    libraryDependencies ++= Seq(
-      "io.catbird" %% "catbird-util" % catbirdVersion
-    )
+    libraryDependencies ++= Seq(P.catbird)
   )
   .dependsOn(core)
 
@@ -148,10 +130,7 @@ lazy val monix = project
     moduleName := "agni-monix"
   )
   .settings(
-    libraryDependencies ++= Seq(
-      "io.monix" %% "monix-eval" % monixVersion,
-      "io.monix" %% "monix-tail" % monixVersion
-    )
+    libraryDependencies ++= Seq(P.monixEval, P.monixTail)
   )
   .dependsOn(core)
 
@@ -163,9 +142,7 @@ lazy val `cats-effect` = project
     moduleName := "agni-cats-effect"
   )
   .settings(
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect" % catsEffectVersion
-    )
+    libraryDependencies ++= Seq(P.catsEffect)
   )
   .dependsOn(core)
 
@@ -196,12 +173,7 @@ lazy val examples = project
     moduleName := "agni-examples"
   )
   .settings(
-    libraryDependencies ++= Seq(
-      "com.datastax.oss" % "java-driver-query-builder" % datastaxVersion,
-      "org.typelevel" %% "cats-effect" % catsEffectVersion,
-      "org.slf4j" % "slf4j-simple" % "1.7.13",
-      "org.scalatest" %% "scalatest" % scalatestVersion
-    )
+    libraryDependencies ++= Seq(P.datastaxQueryBuilder, P.slf4jSimple, P.scalatest)
   )
   .dependsOn(`cats-effect`)
 
