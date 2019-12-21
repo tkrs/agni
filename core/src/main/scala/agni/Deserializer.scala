@@ -2,7 +2,7 @@ package agni
 
 import java.net.InetAddress
 import java.nio.ByteBuffer
-import java.time.{ Instant, LocalDate }
+import java.time.{Instant, LocalDate}
 import java.util.UUID
 
 import agni.internal.ScalaVersionSpecifics._
@@ -43,10 +43,11 @@ object Deserializer {
     override def apply(raw: ByteBuffer, version: ProtocolVersion): Either[Throwable, A] = Left(ex)
   }
 
-  implicit def deserializeOption[A](implicit A: Deserializer[A]): Deserializer[Option[A]] = new Deserializer[Option[A]] {
-    override def apply(raw: ByteBuffer, version: ProtocolVersion): Either[Throwable, Option[A]] =
-      if (raw == null) Right(None) else A.apply(raw, version).map(Some(_))
-  }
+  implicit def deserializeOption[A](implicit A: Deserializer[A]): Deserializer[Option[A]] =
+    new Deserializer[Option[A]] {
+      override def apply(raw: ByteBuffer, version: ProtocolVersion): Either[Throwable, Option[A]] =
+        if (raw == null) Right(None) else A.apply(raw, version).map(Some(_))
+    }
 
   implicit val deserializeAscii: Deserializer[String] = new Deserializer[String] {
     override def apply(raw: ByteBuffer, version: ProtocolVersion): Either[Throwable, String] =
@@ -164,7 +165,7 @@ object Deserializer {
                 builder += k -> v
             } match {
               case Right(_) => go(size - 1)
-              case Left(e) => Left(e)
+              case Left(e)  => Left(e)
             }
           }
 
@@ -176,7 +177,8 @@ object Deserializer {
     }
   }
 
-  implicit def deserializeCollection[A, C[_]](implicit A: Deserializer[A], factory: Factory[A, C[A]]): Deserializer[C[A]] =
+  implicit def deserializeCollection[A, C[_]](implicit A: Deserializer[A],
+                                              factory: Factory[A, C[A]]): Deserializer[C[A]] =
     new Deserializer[C[A]] {
       override def apply(raw: ByteBuffer, version: ProtocolVersion): Either[Throwable, C[A]] = {
         val builder = factory.newBuilder

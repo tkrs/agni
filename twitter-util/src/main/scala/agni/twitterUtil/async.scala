@@ -1,11 +1,11 @@
 package agni.twitterUtil
 
-import java.util.concurrent.{ CompletableFuture, CompletionStage }
+import java.util.concurrent.{CompletableFuture, CompletionStage}
 import java.util.function.BiConsumer
 
 import agni.util.Par
 import cats.~>
-import com.twitter.util.{ Future, Promise }
+import com.twitter.util.{Future, Promise}
 
 import scala.util.control.NonFatal
 

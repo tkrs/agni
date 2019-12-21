@@ -3,7 +3,7 @@ package agni
 import java.nio.ByteBuffer
 
 import com.datastax.oss.driver.api.core.ProtocolVersion
-import org.scalatest.{ Assertion, FunSpec, Matchers }
+import org.scalatest.{Assertion, FunSpec, Matchers}
 
 class DeserializerSpec extends FunSpec with Matchers {
 
@@ -43,7 +43,7 @@ class DeserializerSpec extends FunSpec with Matchers {
       } yield r
 
       x match {
-        case Left(e) => fail(e)
+        case Left(e)  => fail(e)
         case Right(v) => assert(int.toString === v)
       }
     }
@@ -59,7 +59,7 @@ class DeserializerSpec extends FunSpec with Matchers {
       } yield r
 
       x match {
-        case Left(e) => fail(e)
+        case Left(e)  => fail(e)
         case Right(v) => assert(int.toString === v)
       }
     }

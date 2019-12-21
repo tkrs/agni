@@ -1,6 +1,6 @@
 package agni.generic
 
-import agni.{ Binder, RowDecoder }
+import agni.{Binder, RowDecoder}
 import shapeless.Lazy
 
 object auto {

@@ -1,6 +1,6 @@
 package agni.monix
 
-import java.util.concurrent.{ CompletableFuture, CompletionStage }
+import java.util.concurrent.{CompletableFuture, CompletionStage}
 import java.util.function.BiConsumer
 
 import agni.util.Par
@@ -16,10 +16,9 @@ object async {
     private[this] def run[A](fa: CompletionStage[A]): G[A] = {
       def f(callback: Either[Throwable, A] => Unit) =
         fa.whenComplete(new BiConsumer[A, Throwable] {
-          def accept(t: A, u: Throwable): Unit = {
+          def accept(t: A, u: Throwable): Unit =
             if (u != null) callback(Left(u))
             else callback(Right(t))
-          }
         })
 
       fa match {

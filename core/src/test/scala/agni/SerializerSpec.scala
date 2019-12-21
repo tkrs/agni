@@ -1,7 +1,7 @@
 package agni
 
 import com.datastax.oss.driver.api.core.ProtocolVersion
-import org.scalatest.{ FunSpec, Matchers }
+import org.scalatest.{FunSpec, Matchers}
 
 class SerializerSpec extends FunSpec with Matchers {
 
@@ -16,7 +16,7 @@ class SerializerSpec extends FunSpec with Matchers {
       } yield r
 
       x match {
-        case Left(e) => fail(e)
+        case Left(e)  => fail(e)
         case Right(v) => assert(int.toString === v)
       }
     }

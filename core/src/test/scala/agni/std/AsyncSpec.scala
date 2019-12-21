@@ -1,12 +1,12 @@
 package agni.std
 
-import java.util.concurrent.{ CompletableFuture, CompletionStage }
+import java.util.concurrent.{CompletableFuture, CompletionStage}
 
 import agni.util.Par
 import org.scalatest._
 
 import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{Await, Future}
 
 class AsyncSpec extends FlatSpec {
   import async._

@@ -2,7 +2,7 @@ package agni
 
 import java.net.InetAddress
 import java.nio.ByteBuffer
-import java.time.{ Instant, LocalDate, ZonedDateTime }
+import java.time.{Instant, LocalDate, ZonedDateTime}
 import java.util.UUID
 
 import agni.internal.ScalaVersionSpecifics._
@@ -34,7 +34,7 @@ object Serializer {
   implicit def serializeOption[A](implicit A: Serializer[A]): Serializer[Option[A]] = new Serializer[Option[A]] {
     override def apply(value: Option[A], version: ProtocolVersion): Either[Throwable, ByteBuffer] =
       value match {
-        case None => Right(null)
+        case None    => Right(null)
         case Some(v) => A(v, version)
       }
   }
@@ -134,7 +134,9 @@ object Serializer {
     V: Serializer[V]
   ): Serializer[M[K, V]] = new Serializer[M[K, V]] {
     override def apply(value: M[K, V], version: ProtocolVersion): Either[Throwable, ByteBuffer] = {
-      @tailrec def go(m: List[(K, V)], acc: mutable.ArrayBuilder[ByteBuffer], toAllocate: Int): Either[Throwable, (Array[ByteBuffer], Int)] = m match {
+      @tailrec def go(m: List[(K, V)],
+                      acc: mutable.ArrayBuilder[ByteBuffer],
+                      toAllocate: Int): Either[Throwable, (Array[ByteBuffer], Int)] = m match {
         case Nil => (acc.result(), toAllocate).asRight
         case (k, v) :: t =>
           val kv = (K(k, version), V(v, version)).mapN((_, _))
@@ -150,16 +152,17 @@ object Serializer {
 
       val bbs = mutable.ArrayBuilder.make[ByteBuffer]
       go(value.toList, bbs, 4).flatMap {
-        case (bbs, toAllocate) => Either.catchNonFatal {
-          val result = ByteBuffer.allocate(toAllocate)
-          result.putInt(value.size)
-          bbs.foreach { buffer =>
-            result.putInt(buffer.remaining())
-            result.put(buffer)
+        case (bbs, toAllocate) =>
+          Either.catchNonFatal {
+            val result = ByteBuffer.allocate(toAllocate)
+            result.putInt(value.size)
+            bbs.foreach { buffer =>
+              result.putInt(buffer.remaining())
+              result.put(buffer)
+            }
+            result.flip()
+            result
           }
-          result.flip()
-          result
-        }
       }
     }
   }
@@ -170,12 +173,13 @@ object Serializer {
     is: IsIterableOnce.Aux[C[A0], A0]
   ): Serializer[C[A0]] =
     new Serializer[C[A0]] {
-      override def apply(value: C[A0], version: ProtocolVersion): Either[Throwable, ByteBuffer] = {
-        if (value == null) Left(new NullPointerException) else {
+      override def apply(value: C[A0], version: ProtocolVersion): Either[Throwable, ByteBuffer] =
+        if (value == null) Left(new NullPointerException)
+        else {
           val items = mutable.ArrayBuilder.make[ByteBuffer]
           val it = is(value).iterator
 
-          @tailrec def go(toAllocate: Int): Either[Throwable, (Array[ByteBuffer], Int)] = {
+          @tailrec def go(toAllocate: Int): Either[Throwable, (Array[ByteBuffer], Int)] =
             if (!it.hasNext) (items.result(), toAllocate).asRight
             else {
               A(it.next(), version) match {
@@ -186,21 +190,20 @@ object Serializer {
                   Left(e)
               }
             }
-          }
 
           go(4).flatMap({
-            case (bbs, toAllocate) => Either.catchNonFatal {
-              val result = ByteBuffer.allocate(toAllocate)
-              result.putInt(bbs.length)
-              bbs.foreach { buffer =>
-                result.putInt(buffer.remaining())
-                result.put(buffer)
+            case (bbs, toAllocate) =>
+              Either.catchNonFatal {
+                val result = ByteBuffer.allocate(toAllocate)
+                result.putInt(bbs.length)
+                bbs.foreach { buffer =>
+                  result.putInt(buffer.remaining())
+                  result.put(buffer)
+                }
+                result.flip()
+                result
               }
-              result.flip()
-              result
-            }
           })
         }
-      }
     }
 }

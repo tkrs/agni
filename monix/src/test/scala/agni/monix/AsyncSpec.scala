@@ -40,4 +40,3 @@ class AsyncSpec extends FlatSpec {
     assert(never.isCancelled())
   }
 }
-

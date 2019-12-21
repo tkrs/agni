@@ -6,7 +6,7 @@ import java.util.function.BiConsumer
 import agni.util.Par
 import cats.~>
 
-import scala.concurrent.{ Future, Promise }
+import scala.concurrent.{Future, Promise}
 
 object async {
 

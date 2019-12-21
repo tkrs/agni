@@ -5,7 +5,7 @@ import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
 
 import agni.util.Par
-import cats.effect.{ ContextShift, IO }
+import cats.effect.{ContextShift, IO}
 import org.scalatest._
 
 import scala.concurrent.duration._
