@@ -32,12 +32,12 @@ object Main extends IOApp with Matchers {
       _ <- remake(session)
 
       _ <- Cql.prepareAsync[IO](session, insertUserQuery).flatTap(a => IO(println(a.getQuery))) >>=
-        (p => users.traverse(x => insertUser(session, p, x)))
+            (p => users.traverse(x => insertUser(session, p, x)))
 
       v = session.getContext.getProtocolVersion
 
       xs <- Cql.prepareAsync[IO](session, selectUserQuery).flatTap(a => IO(println(a.getQuery))) >>=
-        (p => Cql.getRowsAs[IO, Author](session, p.bind()))
+             (p => Cql.getRowsAs[IO, Author](session, p.bind()))
     } yield xs
 
   def insertUser(session: CqlSession, p: PreparedStatement, a: Author) =
@@ -57,12 +57,12 @@ object Main extends IOApp with Matchers {
       LocalDate.of(1932, 12, 15),
       "female",
       Map(
-        "The Country Girls" -> 1960,
-        "Girl with Green Eyes" -> 1962,
+        "The Country Girls"            -> 1960,
+        "Girl with Green Eyes"         -> 1962,
         "Girls in Their Married Bliss" -> 1964,
-        "August is a Wicked Month" -> 1965,
-        "Casualties of Peace" -> 1966,
-        "Mother Ireland" -> 1976
+        "August is a Wicked Month"     -> 1965,
+        "Casualties of Peace"          -> 1966,
+        "Mother Ireland"               -> 1976
       )
     ),
     Author(
@@ -72,31 +72,33 @@ object Main extends IOApp with Matchers {
       LocalDate.of(1919, 8, 15),
       "male",
       Map(
-        "The Collected Stories of Benedict Kiely" -> 2001,
-        "The Trout in the Turnhole" -> 1996,
-        "A Letter to Peachtree" -> 1987,
+        "The Collected Stories of Benedict Kiely"                     -> 2001,
+        "The Trout in the Turnhole"                                   -> 1996,
+        "A Letter to Peachtree"                                       -> 1987,
         "The State of Ireland: A Novella and Seventeen Short Stories" -> 1981,
-        "A Cow in the House" -> 1978,
-        "A Ball of Malt and Madame Butterfly" -> 1973,
-        "A Journey to the Seven Streams" -> 1963
+        "A Cow in the House"                                          -> 1978,
+        "A Ball of Malt and Madame Butterfly"                         -> 1973,
+        "A Journey to the Seven Streams"                              -> 1963
       )
     ),
-    Author(UUID.randomUUID(),
-           "Darren",
-           "Shan",
-           LocalDate.of(1972, 7, 2),
-           "male",
-           Map(
-             "Cirque Du Freak" -> 2000,
-             "The Vampire's Assistant" -> 2000,
-             "Tunnels of Blood" -> 2000
-           ))
+    Author(
+      UUID.randomUUID(),
+      "Darren",
+      "Shan",
+      LocalDate.of(1972, 7, 2),
+      "male",
+      Map(
+        "Cirque Du Freak"         -> 2000,
+        "The Vampire's Assistant" -> 2000,
+        "Tunnels of Blood"        -> 2000
+      )
+    )
   ).sortBy(_.id)
 
 }
 
 object Query {
-  private[this] val keyspace = "agni_test"
+  private[this] val keyspace  = "agni_test"
   private[this] val tableName = "author"
 
   val createKeyspaceQuery =
@@ -143,6 +145,6 @@ final case class Author(
 object Author {
   import agni.generic.semiauto._
 
-  implicit val bind: Binder[Author] = derivedBinder[Author]
+  implicit val bind: Binder[Author]       = derivedBinder[Author]
   implicit val decode: RowDecoder[Author] = derivedRowDecoder[Author]
 }
