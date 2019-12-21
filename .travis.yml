@@ -1,6 +1,6 @@
 language: scala
-dist: trusty
-sudo: true
+dist: xenial
+sudo: false
 
 scala:
   - 2.12.10
@@ -19,7 +19,7 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot
     - $HOME/.sbt/launchers
-    - $HOME/.coursier
+    - $HOME/.cache
 
 install:
   - pip install --user codecov
