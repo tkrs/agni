@@ -1,6 +1,6 @@
 language: scala
 dist: xenial
-sudo: true
+sudo: false
 
 scala:
   - 2.12.10
