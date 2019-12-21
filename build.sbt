@@ -19,7 +19,7 @@ lazy val allSettings = Seq.concat(
 )
 
 lazy val buildSettings = Seq(
-  organization := "com.github.yanana",
+  organization := "com.github.tkrs",
   scalaVersion := "2.13.1",
   crossScalaVersions := Seq("2.12.10", "2.13.1"),
   libraryDependencies += compilerPlugin(("org.typelevel" % "kind-projector" % "0.11.0").cross(CrossVersion.full))
@@ -51,7 +51,7 @@ lazy val baseSettings = Seq(
   scalacOptions ++= compilerOptions ++ {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, n)) if n >= 13 => Nil
-      case _                       => Seq("-Xfuture","-Ypartial-unification", "-Yno-adapted-args")
+      case _                       => Seq("-Xfuture", "-Ypartial-unification", "-Yno-adapted-args")
     }
   },
   scalacOptions in (Compile, console) := compilerOptions,
@@ -68,7 +68,7 @@ lazy val baseSettings = Seq(
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  homepage := Some(url("https://github.com/yanana/agni")),
+  homepage := Some(url("https://github.com/tkrs/agni")),
   licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
   publishMavenStyle := true,
   publishArtifact in Test := false,
@@ -82,8 +82,8 @@ lazy val publishSettings = Seq(
   },
   scmInfo := Some(
     ScmInfo(
-      url("https://github.com/yanana/agni"),
-      "scm:git:git@github.com:yanana/agni.git"
+      url("https://github.com/tkrs/agni"),
+      "scm:git:git@github.com:tkrs/agni.git"
     )
   ),
   pomExtra :=
