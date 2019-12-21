@@ -31,10 +31,10 @@ trait TypedSuite extends FunSuite with Checkers {
   type T17 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int])
   type T18 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String])
   type T19 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double])
-  type T20 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double], Stream[Float])
-  type T21 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double], Stream[Float], Map[Int, String])
-  type T22 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double], Stream[Float], Map[Int, String], TupleValue)
-  type T22_2 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double], Stream[Float], Map[Int, String], UdtValue)
+  type T20 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double], Iterable[Float])
+  type T21 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double], Iterable[Float], Map[Int, String])
+  type T22 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double], Iterable[Float], Map[Int, String], TupleValue)
+  type T22_2 = (Option[Int], String, Int, Long, Float, Double, BigDecimal, Byte, Short, BigInt, UUID, ByteBuffer, InetAddress, LocalDate, Instant, CqlDuration, List[Int], Vector[String], Set[Double], Iterable[Float], Map[Int, String], UdtValue)
 
   type IDV = Record.`'foo -> Int, 'bar -> Double, 'quux -> Vector[Int]`.T
 
@@ -62,7 +62,7 @@ object TypedSuite {
     listInt: List[Int],
     vectorString: Vector[String],
     setDouble: Set[Double],
-    streamFloat: Stream[Float],
+    streamFloat: Iterable[Float],
     mapIntString: Map[Int, String],
     tupleValue: TupleValue,
     udtValue: UdtValue

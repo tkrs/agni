@@ -5,6 +5,7 @@ import java.nio.ByteBuffer
 import java.time.{ Instant, LocalDate, ZonedDateTime }
 import java.util.UUID
 
+import agni.internal.ScalaVersionSpecifics._
 import cats.instances.either._
 import cats.syntax.apply._
 import cats.syntax.either._
@@ -13,7 +14,6 @@ import com.datastax.oss.driver.api.core.`type`.codec.TypeCodecs
 import com.datastax.oss.driver.api.core.data.CqlDuration
 
 import scala.annotation.tailrec
-import scala.collection.generic.IsTraversableOnce
 import scala.collection.mutable
 
 trait Serializer[A] {
@@ -23,7 +23,7 @@ trait Serializer[A] {
 
   def contramap[B](f: B => A): Serializer[B] = new Serializer[B] {
     override def apply(value: B, version: ProtocolVersion): Either[Throwable, ByteBuffer] =
-      self.apply(f(value), version)
+      self(f(value), version)
   }
 }
 
@@ -35,7 +35,7 @@ object Serializer {
     override def apply(value: Option[A], version: ProtocolVersion): Either[Throwable, ByteBuffer] =
       value match {
         case None => Right(null)
-        case Some(v) => A.apply(v, version)
+        case Some(v) => A(v, version)
       }
   }
 
@@ -167,18 +167,18 @@ object Serializer {
   implicit def serializeTraversableOnce[A0, C[_]](
     implicit
     A: Serializer[A0],
-    is: IsTraversableOnce[C[A0]] { type A = A0 }
+    is: IsIterableOnce.Aux[C[A0], A0]
   ): Serializer[C[A0]] =
     new Serializer[C[A0]] {
       override def apply(value: C[A0], version: ProtocolVersion): Either[Throwable, ByteBuffer] = {
         if (value == null) Left(new NullPointerException) else {
           val items = mutable.ArrayBuilder.make[ByteBuffer]
-          val it = is.conversion(value).toIterator
+          val it = is(value).iterator
 
           @tailrec def go(toAllocate: Int): Either[Throwable, (Array[ByteBuffer], Int)] = {
             if (!it.hasNext) (items.result(), toAllocate).asRight
             else {
-              A.apply(it.next(), version) match {
+              A(it.next(), version) match {
                 case Right(v) =>
                   items += v
                   go(toAllocate + 4 + v.remaining())
