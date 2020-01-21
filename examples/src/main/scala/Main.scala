@@ -8,7 +8,7 @@ import cats.implicits._
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import com.datastax.oss.driver.api.querybuilder.{QueryBuilder => Q}
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 
 object Main extends IOApp with Matchers {
   import Query._

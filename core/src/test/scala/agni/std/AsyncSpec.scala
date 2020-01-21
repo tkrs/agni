@@ -3,12 +3,12 @@ package agni.std
 import java.util.concurrent.{CompletableFuture, CompletionStage}
 
 import agni.util.Par
-import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class AsyncSpec extends FlatSpec {
+class AsyncSpec extends AnyFlatSpec {
   import async._
 
   val parF: Par.Aux[CompletionStage, Future] = implicitly

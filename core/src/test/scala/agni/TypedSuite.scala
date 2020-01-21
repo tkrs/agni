@@ -6,11 +6,11 @@ import java.time.{Instant, LocalDate}
 import java.util.UUID
 
 import com.datastax.oss.driver.api.core.data.{CqlDuration, TupleValue, UdtValue}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.Checkers
 import shapeless.record._
 
-trait TypedSuite extends FunSuite with Checkers {
+trait TypedSuite extends AnyFunSuite with Checkers {
 
   // format: off
   type T1 = Option[Int]

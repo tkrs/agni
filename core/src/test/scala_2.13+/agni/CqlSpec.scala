@@ -4,8 +4,10 @@ import java.util.concurrent.CompletableFuture
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.cql.{AsyncResultSet, BoundStatement, Row}
-import org.scalatest._
 import org.mockito.Mockito._
+import org.scalatest._
+import org.scalatest.funspec.AsyncFunSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 
 import scala.annotation.tailrec

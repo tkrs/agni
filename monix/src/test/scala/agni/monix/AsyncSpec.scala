@@ -7,11 +7,11 @@ import java.util.function.Supplier
 import agni.util.Par
 import monix.eval.Task
 import monix.execution.Scheduler
-import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.concurrent.duration._
 
-class AsyncSpec extends FlatSpec {
+class AsyncSpec extends AnyFlatSpec {
   import async._
   import Scheduler.Implicits.global
 

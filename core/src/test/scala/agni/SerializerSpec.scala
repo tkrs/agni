@@ -1,9 +1,10 @@
 package agni
 
 import com.datastax.oss.driver.api.core.ProtocolVersion
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class SerializerSpec extends FunSpec with Matchers {
+class SerializerSpec extends AnyFunSpec with Matchers {
 
   describe("contramap") {
 

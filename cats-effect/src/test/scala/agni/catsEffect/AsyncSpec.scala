@@ -6,12 +6,12 @@ import java.util.function.Supplier
 
 import agni.util.Par
 import cats.effect.{ContextShift, IO}
-import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 
-class AsyncSpec extends FlatSpec {
+class AsyncSpec extends AnyFlatSpec {
   import async._
 
   implicit def contextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
