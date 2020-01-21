@@ -1,15 +1,15 @@
 package benchmarks.inMem
 
-import java.util.concurrent.TimeUnit
-
 import agni.RowDecoder
 import org.openjdk.jmh.annotations._
+
+import scala.concurrent.duration._
 
 @State(Scope.Thread)
 @BenchmarkMode(Array(Mode.Throughput))
 @Warmup(iterations = 10, time = 5)
 @Measurement(iterations = 10, time = 10)
-@OutputTimeUnit(TimeUnit.SECONDS)
+@OutputTimeUnit(SECONDS)
 @Fork(2)
 class RowDecoderBenchmark {
   import RowDecoderBenchmark._
