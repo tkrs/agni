@@ -5,11 +5,11 @@ import java.util.function.Supplier
 
 import agni.util.Par
 import com.twitter.util.{Await, Future}
-import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.concurrent.duration._
 
-class AsyncSpec extends FlatSpec {
+class AsyncSpec extends AnyFlatSpec {
   import async._
 
   val parF: Par.Aux[CompletionStage, Future] = implicitly

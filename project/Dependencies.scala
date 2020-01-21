@@ -10,13 +10,16 @@ object Dependencies {
     val datastax   = "4.3.0"
     val cats       = "2.0.0"
     val shapeless  = "2.3.3"
-    val scalacheck = "1.14.1"
-    val scalatest  = "3.0.8"
     val catbird    = "19.9.0"
     val monix      = "3.1.0"
     val catsEffect = "2.0.0"
-    val mockito    = "3.1.0"
     val slf4j      = "1.7.13"
+
+    val scalatest = "3.1.0"
+    val scalatestplus = new {
+      val scalacheck = "3.1.0.1"
+      val mockito    = "3.1.0.0"
+    }
   }
 
   val P = new {
@@ -30,9 +33,10 @@ object Dependencies {
     val monixEval            = "io.monix"         %% "monix-eval"               % V.monix
     val monixTail            = "io.monix"         %% "monix-tail"               % V.monix
     val catsEffect           = "org.typelevel"    %% "cats-effect"              % V.catsEffect
-    val scalacheck           = "org.scalacheck"   %% "scalacheck"               % V.scalacheck
-    val scalatest            = "org.scalatest"    %% "scalatest"                % V.scalatest
-    val mockito              = "org.mockito"      % "mockito-core"              % V.mockito
     val slf4jSimple          = "org.slf4j"        % "slf4j-simple"              % V.slf4j
+
+    lazy val scalatest  = "org.scalatest"     %% "scalatest"       % V.scalatest
+    lazy val scalacheck = "org.scalatestplus" %% "scalacheck-1-14" % V.scalatestplus.scalacheck
+    lazy val mockito    = "org.scalatestplus" %% "mockito-3-2"     % V.scalatestplus.mockito
   }
 }

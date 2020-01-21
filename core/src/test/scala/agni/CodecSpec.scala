@@ -11,9 +11,11 @@ import com.datastax.oss.driver.api.core.ProtocolVersion
 import com.datastax.oss.driver.api.core.data.CqlDuration
 import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}
 import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 
-class CodecSpec extends FunSuite with Checkers with Matchers {
+class CodecSpec extends AnyFunSuite with Checkers with Matchers {
 
   implicit val arbString: Arbitrary[String] = Arbitrary(Gen.alphaStr)
   implicit val arbUUID: Arbitrary[UUID]     = Arbitrary(Gen.uuid)

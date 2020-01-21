@@ -3,9 +3,11 @@ package agni
 import java.nio.ByteBuffer
 
 import com.datastax.oss.driver.api.core.ProtocolVersion
-import org.scalatest.{Assertion, FunSpec, Matchers}
+import org.scalatest.Assertion
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class DeserializerSpec extends FunSpec with Matchers {
+class DeserializerSpec extends AnyFunSpec with Matchers {
 
   val protoVer = ProtocolVersion.DEFAULT
 
