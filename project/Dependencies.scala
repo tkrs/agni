@@ -2,23 +2,23 @@ import sbt._
 
 object Dependencies {
   val V = new {
-    val `scala2.12` = "2.12.10"
-    val `scala2.13` = "2.13.1"
+    val `scala2.12` = "2.12.11"
+    val `scala2.13` = "2.13.2"
 
     val kindeProjector = "0.11.0"
 
-    val datastax   = "4.3.0"
-    val cats       = "2.0.0"
+    val datastax   = "4.6.1"
+    val cats       = "2.1.1"
     val shapeless  = "2.3.3"
-    val catbird    = "19.9.0"
+    val catbird    = "20.3.0"
     val monix      = "3.1.0"
-    val catsEffect = "2.0.0"
+    val catsEffect = "2.1.3"
     val slf4j      = "1.7.13"
 
-    val scalatest = "3.1.0"
+    val scalatest = "3.1.1"
     val scalatestplus = new {
-      val scalacheck = "3.1.0.1"
-      val mockito    = "3.1.0.0"
+      val scalacheck = "3.1.1.1"
+      val mockito    = "3.1.1.0"
     }
   }
 
